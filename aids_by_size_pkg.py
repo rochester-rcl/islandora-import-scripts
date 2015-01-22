@@ -6,14 +6,18 @@ from xml.etree.ElementTree import ElementTree
 from collections import OrderedDict
 from operator import itemgetter
 import logging
-logging.basicConfig(filename='aids_no_meta_export.log',level=logging.INFO)
-#item directory
+import datetime
 
-itemDirectory = "O:\\Rochester_Posters_14-001\\TIFFs\\"
-#itemDirectory = "G:\\aids-test-files\\"
-zipOutDir = "I:\\aids-no-meta-prod-out\\"
-xmlOutputDir = "G:\\no-meta-xml-out\\"
-templateFile = "C:\\python-scripts\\xml-file-output\\aids_skeletalmods.xml"
+dateTimeInfo = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+loggingName = "aids_export" + dateTimeInfo + ".log"
+
+logging.basicConfig(filename=loggingName,level=logging.INFO)
+
+itemDirectory = "J:\\"
+zipOutDir = "I:\\aids-meta-zip-out\\"
+xmlOutputDir = "G:\\aids-drupal-xml\\"
+
+fileMatch = "AP[0-9]+\.tif"
 
 
 # pull list of SORTED item IDs from folder where XML files are stored
@@ -22,11 +26,15 @@ def getFileList(itemDirectory, extension):
     fileList = {}
     for root, sub, files in os.walk(itemDirectory):
             for item in files:
-                myFileSize = os.path.getsize(os.path.join(root,item)) 
-                fileList[item] = myFileSize
+                if (re.match(fileMatch, item)):
+                    print("adding item " + item)
+                    myFileSize = os.path.getsize(os.path.join(root,item)) 
+                    fileList[item] = myFileSize
+                else: 
+                    logging.info("Skipping file " + item + " name pattern did not match")
     itemIdList = {}
     for fileNameKey, fileSize in fileList.items():
-        
+        print("checking file " + fileNameKey)
         if fileNameKey.find(extension) != -1 :
             print("Adding found file " + fileNameKey + " of size " + str(fileSize))
             itemIdList[fileNameKey.split('.')[0]] = fileSize
@@ -36,25 +44,6 @@ def getFileList(itemDirectory, extension):
     sortedDict =  OrderedDict(sorted(itemIdList.items(), key=itemgetter(1)))
     return sortedDict;
 
-def createXmlFiles(idList):
-    print("create xml file list")
-    for id in idList:
-        #print("processing id " + id )
-        tree = ElementTree()
-        tree.parse(templateFile)
-        root = tree.getroot()
-        nameElement = tree.find('titleInfo/title')
-        nameElement.text = id
-        apElement = tree.find('identifier')
-        apElement.text = id
-        root.attrib = {"xmlns:xlink":"http://www.w3.org/1999/xlink", 
-            "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance",
-            "xmlns":"http://www.loc.gov/mods/v3",
-            "version":"3.5",
-            "xsi:schemaLocation":"http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-5.xsd"}
-        #print("writing file " + xmlOutputDir + id + ".xml")
-        tree.write(xmlOutputDir + id + ".xml")
-	
 
 # walk through file tree, find all items matching an item ID, return list of files with paths  
 def findMatchingItems(idStr, itemDirectoryStr):
@@ -73,17 +62,20 @@ def getZipableFileSet(idList):
 
     for id in idList:
         myFiles = findMatchingItems(id, itemDirectory)
-#        if id.find("_stitched") == -1 :
         print("adding id " + id + " to current set" )
             
         if len(myFiles) == 1:
-            filesToAdd.append(myFiles[0])
             fileName = id + ".xml"
-            filesToAdd.append((os.path.join(xmlOutputDir, fileName)))
+            xmlFile = os.path.join(xmlOutputDir, fileName)
+            if( os.path.isfile(xmlFile) ):
+                filesToAdd.append(xmlFile)
+                filesToAdd.append(myFiles[0])
+                fileName = id + ".xml"
+            else:
+                 logging.info("skipping file  " +  id + " no xml file found")
+            
         else:
-            logging.info("Bad files had len of " + len(myFiles)  + " two for id " +  id)
- #       else:
- #           logging.info("Skipping file " + myFiles[0] + " over 2 gb ")
+            logging.info("Bad files had len of " + str(len(myFiles))  + " for id " +  id)
 
     print("done prcessing zip set")
     return filesToAdd 
@@ -139,7 +131,6 @@ def processSets(offset, maxFilesToProcess):
                 counter = counter + 1
             else:
                 print("file size " + str(totalBytes + fileSize) + "  Larger than 2Gb adding file " + fileName + " to next set")
-                createXmlFiles(fileSet)
                 zipFileSet = getZipableFileSet(fileSet)
                 createZipSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip")
                 print("creating file set " + zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip size = " + str(totalBytes))
@@ -152,43 +143,11 @@ def processSets(offset, maxFilesToProcess):
                 print("resetting startCount " + str(startCount) + "offset = " + str(offset) + "")
 
     if(len(fileSet) > 0):
-        createXmlFiles(fileSet)
         zipFileSet = getZipableFileSet(fileSet)
         createZipSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter - 1) + ".zip")
         print("creating file set " + zipOutDir + "aep_" + str(startCount) + "_to_" + str(counter -1) + ".zip size = " + str(totalBytes))
 
 
-
-
-
-   
-
-
-#    counter = offset
-#    print ( "Total number of ids = " + str(setSize))
-#    if offset > setSize:
-#        print("Offset " + str(offset) + " is too large for set size " + str(setSize))
-#    else:
-#        filesToProcess = {}
-#        if (offset + maxFilesToProcess - 1) > setSize:
-#            print("processing files up to set size start = " + str(offset) + " end = " + str(setSize))
-#            filesToProcess = fileIdList[offset:setSize]
-#        else: 
-#            print("processing files with max files to process start = " + str(offset +1) + " end = " + str(offset + maxFilesToProcess))
-#            filesToProcess = fileIdList[offset:(offset + maxFilesToProcess)]
-
-       
-
-
-#        sets = createListSets(filesToProcess, maxFilesPerZip)
-#        for set in sets:
-#
-#            print( "processing files from " + str(offset + 1) + " to " + str(offset + maxFilesPerZip))
-#            createXmlFiles(set)
-#            myFileSet = getZipableFileSet(set)
-#           
-#            createZipSet(myFileSet, zipOutDir +"aep_" + str(offset + 1) + "_to_" + str(offset+maxFilesPerZip) +".zip")
-#            offset += maxFilesPerZip
 
 
 # maxFilesPerZip = input("Please enter maximum number of files per zip file: ")
