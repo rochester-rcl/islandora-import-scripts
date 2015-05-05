@@ -12,7 +12,9 @@ import shutil
 
 from xml.dom.minidom import Node 
 
-
+# #########################################################
+# Represents all the metadata classes for import
+# #########################################################
 class RecordInfo:
 	"""Holds record info information"""
 	def __init__(self):
@@ -306,7 +308,8 @@ class DateCreated:
 		self.value = ''
 		self.encoding = ''
 		self.qualifier = ''
-		self.keyDate = ''	
+		self.keyDate = ''
+		self.point = ''	
 
 	def toModsElement(self, parentElement):
 		topLevel = ET.SubElement(parentElement, 'dateCreated')
@@ -319,6 +322,9 @@ class DateCreated:
 
 		if(self.keyDate):
 			topLevel.set('keyDate', self.keyDate.strip())
+
+		if(self.point):
+			topLevel.set('point', self.point.strip())
 
 		topLevel.text = self.value.strip()
 
@@ -470,7 +476,9 @@ class Identifier:
 		topLevel.text = self.value.strip()
 		return topLevel
 
-
+#
+# Buidl the xml file using the above classes
+#
 def buildXml(row):
 	print('build xml')
 	root = ET.Element('mods', {"xmlns:xlink":"http://www.w3.org/1999/xlink", 
@@ -571,170 +579,190 @@ def buildXml(row):
 
 		dateQuestionable.toModsElement(dateQuestionableInfoElement)
 
-	#personal name element (Letter creator)
+	# begin date
 	if( row[9] ):
+		beginDateInfoElement = OriginInfo().toModsElement(root)
+		dateBegin = DateCreated()
+		dateBegin.value = row[9]
+		dateBegin.encoding = "marc"
+		dateBegin.point = "start"
+
+		dateBegin.toModsElement(beginDateInfoElement )
+
+	# end date
+	if( row[10] ):
+		endDateInfoElement = OriginInfo().toModsElement(root)
+		endBegin = DateCreated()
+		endBegin.value = row[10]
+		endBegin.encoding = "marc"
+		endBegin.point = "end"
+
+		endBegin.toModsElement(endDateInfoElement )
+
+	#personal name element (Letter creator)
+	if( row[11] ):
 		name = Name()
 		name.type = "personal"
  
 		name1Element = name.toModsElement(root)
 		namePart = NamePart()
-		namePart.value = row[9]
+		namePart.value = row[11]
 	
 
 		namePart.toModsElement(name1Element)
 		roleElement = Role().toModsElement(name1Element)
 
 		#role of the person
-		if( row[10] ):
+		if( row[12] ):
 			roleTerm = RoleTerm()
 			roleTerm.authority = "marcrelator"
 			roleTerm.type = "text"
-			roleTerm.value = row[10]
+			roleTerm.value = row[12]
 			roleTerm.toModsElement(roleElement)
 
 
 
 	#abstract information
-	if( row[11] ):
+	if( row[13] ):
 		abstract = Abstract()
-		abstract.value = row[11]
+		abstract.value = row[13]
 		abstract.toModsElement(root)
 
 	#geo location information
-	if( row[12] ):
+	if( row[14] ):
 		geoLocationElement = OriginInfo().toModsElement(root)
 		placeElement = Place().toModsElement(geoLocationElement)
 		placeTerm = PlaceTerm()
 		placeTerm.type = "text"
-		placeTerm.value = row[12]
+		placeTerm.value = row[14]
 		placeTerm.toModsElement(placeElement)
 
 	#language information
-	if( row[13] ):
+	if( row[15] ):
 		languageElement = Language().toModsElement(root)
 		languageTerm = LanguageTerm()
 		languageTerm.type = "text"
-		languageTerm.value = row[13]
+		languageTerm.value = row[15]
 		languageTerm.toModsElement(languageElement)
 
 	#related name (Letter recipient)
-	if( row[14] ):
+	if( row[16] ):
 		relatedName = Name().toModsElement(root)
 		relatedNamePart = NamePart()
-		relatedNamePart.value = row[14]
+		relatedNamePart.value = row[16]
 	
 		relatedNamePart.toModsElement(relatedName)
 		roleElement2 = Role().toModsElement(relatedName)
 
-		if( row[15] ):
+		if( row[17] ):
 			roleTerm2 = RoleTerm()
 			roleTerm2.authority = "marcrelator"
 			roleTerm2.type = "text"
-			roleTerm2.value = row[15]
+			roleTerm2.value = row[17]
 			roleTerm2.toModsElement(roleElement2)
 
 	#genre information
-	if( row[16] ):
+	if( row[18] ):
 		genre = Genre()
 		genre.authority = "gmgpc"
-		genre.value = row[16]
+		genre.value = row[18]
 		genre.toModsElement(root)
 
 	#subject - topic information
-	if( row[17] ):
+	if( row[19] ):
 		topicSubjectElement = Subject().toModsElement(root)
 		topic = Topic()
-		topic.value = row[17]
+		topic.value = row[19]
 		topic.toModsElement(topicSubjectElement) 
 
 	#subject - name information
-	if( row[18] ):
+	if( row[20] ):
 		nameSubjectRootElement = Subject().toModsElement(root)
 		nameSubject = Name()
 		nameSubject.type = "personal"
 		nameSubjectElement = nameSubject.toModsElement(nameSubjectRootElement)
 		nameSubjectPart = NamePart()
-		nameSubjectPart.value = row[18]
+		nameSubjectPart.value = row[20]
 		nameSubjectPart.toModsElement(nameSubjectElement)
 
 	#subject - corporation name information
-	if( row[19] ):
+	if( row[21] ):
 		corpSubjectRootElement = Subject().toModsElement(root)
 		corpSubject = Name()
 		corpSubject.type = "corporate"
 		corpSubjectElement = corpSubject.toModsElement(corpSubjectRootElement)
 		corpSubjectPart = NamePart()
-		corpSubjectPart.value = row[19]
+		corpSubjectPart.value = row[21]
 		corpSubjectPart.toModsElement(corpSubjectElement)
 
 	#subject geographic information
-	if( row[20] ):
+	if( row[22] ):
 		geoSubjectRootElement = Subject().toModsElement(root)
 		geo = Geographic()
-		geo.value = row[20]
+		geo.value = row[22]
 		geo.toModsElement(geoSubjectRootElement)
 
 
 	# physical description/form
-	if( row[21] or row[22] or row[23]):
+	if( row[23] or row[24] or row[25]):
 		physicalDescriptionElement = PhysicalDescription().toModsElement(root)
 		
-		if( row[21] ):
+		if( row[23] ):
 			form = Form()
 			form.authority = "marcform"
-			form.value = row[21]
+			form.value = row[23]
 			form.toModsElement(physicalDescriptionElement)
 
 		# media type e.g. image/tiff
-		if( row[22] ):
+		if( row[24] ):
 			internetMediaType = InternetMediaType()
-			internetMediaType.value = row[22]
+			internetMediaType.value = row[24]
 			internetMediaType.toModsElement(physicalDescriptionElement)
 	
-		if( row[23] ):
+		if( row[25] ):
 
 			pageStr = " pages"
 
-			if(int(row[23]) <= 1) :
+			if(int(row[25]) <= 1) :
 				pageStr = " page"
 
 			#extent
 			extent = Extent()
-			extent.value = row[23] + pageStr
+			extent.value = row[25] + pageStr
 			extent.toModsElement(physicalDescriptionElement)
 
 	# note
-	if( row[26] ):
+	if( row[28] ):
 		note = Note()
-		note.value = row[26]
+		note.value = row[28]
 		note.toModsElement(root)
 
 	#type of resource
-	if( row[27] ):
+	if( row[29] ):
 		typeOfResource = TypeOfResource()
-		typeOfResource.value = row[27]
+		typeOfResource.value = row[29]
 		typeOfResource.toModsElement(root)
 
 	#source and language of cataloging
-	if( row[28] or row[29] ):
+	if( row[30] or row[31] ):
 		recordInfoElement = RecordInfo().toModsElement(root)
 		#source information
-		if( row[28] ):
+		if( row[30] ):
 			recordSource = RecordContentSource()
-			recordSource.value = row[28]
+			recordSource.value = row[30]
 			recordSource.toModsElement(recordInfoElement)
-		if( row[29] ):
+		if( row[31] ):
 			langOfCatElement = LanguageOfCataloging().toModsElement(recordInfoElement)
 			recordLangauge = LanguageTerm()
-			recordLangauge.value = row[29]
+			recordLangauge.value = row[31]
 			recordLangauge.type = "code"
 			recordLangauge.authority = "iso639-2b"
 			recordLangauge.toModsElement(langOfCatElement)
 
 	#rights access
-	if( row[30] ):
+	if( row[32] ):
 		accessCondition = AccessCondition()
-		accessCondition.value = row[30]
+		accessCondition.value = row[32]
 		accessCondition.toModsElement(root)
 
 	#ET.dump(root)
@@ -743,16 +771,22 @@ def buildXml(row):
 	return root
 
 
-def createXmlFile(row, counter, bookDir):
-	aFileName = os.path.join(bookDir, "MODS" + ".xml")
-	print("XML file name will be = " + aFileName )
+#
+#  Create an xml with the data from the xml file
+#
+def createXmlFile(row, counter, fileName):
+	print("XML file name will be = " + fileName )
 	rootNode = buildXml(row)
 	tree = ET.ElementTree(rootNode)
 
-	if( aFileName ):
-		tree.write(aFileName)
+	if( fileName ):
+		tree.write(fileName)
 
 
+#
+# Creates a folder for every page based on the file name - this is a
+# requirement of islandora
+#
 def createPageStructure(pages, baseDirectory, baseFilename, bookDir):
 	#default format - no leading zeros
 	pageFormat = "{0:01d}"
@@ -769,7 +803,7 @@ def createPageStructure(pages, baseDirectory, baseFilename, bookDir):
 
 	for page in range(1, pages):
 		pageName = pageFormat.format(page)
-		filename = baseFilename + "-" + str(page) + ".tif"
+		filename = baseFilename + "_" + str(page) + ".tif"
 		sourceFile = os.path.join(baseDirectory, filename)
 		if( not os.path.isfile(sourceFile) ):
 			print("Could not find file " + sourceFile)
@@ -783,21 +817,28 @@ def createPageStructure(pages, baseDirectory, baseFilename, bookDir):
 			shutil.copy(sourceFile, destFile)
 
 
+#
+#  Create the file structure for a book in islandora
+#
 def createFileStructure(counter, row, baseDirectory, outputDirectory):
 	#base file name
-	baseFilename = row[25]
+	baseFilename = row[27]
 	#off by one so increase so it works correctly
-	pages = int(row[23]) + 1
+	pages = int(row[25]) + 1
 	print("filename = " + baseFilename)
 	bookDir = os.path.join(outputDirectory, str(counter))
 	print("creating directory " + bookDir)
 	os.mkdir(bookDir)
-	createXmlFile(row, counter, bookDir)
+	xmlFile = os.path.join(bookDir, "MODS" + ".xml")
+	createXmlFile(row, counter, xmlFile)
 	createPageStructure(pages, baseDirectory, baseFilename, bookDir)
 
 	
 
-
+# 
+#  Use this to print out the fields of a csv file and allows programmer
+#  to see the output
+#
 def printCsvInfo(aFile):
 	with open(aFile, 'r') as csvfile:
 		fileReader = csv.reader(csvfile)
@@ -805,14 +846,12 @@ def printCsvInfo(aFile):
 		for row in fileReader:
 			print("************* " + str(counter) + " *********************" )
 			counter = counter + 1
-			for x in range(0,31):
+			for x in range(0,33):
 				print("row " + str(x) + " = " + row[x])
 			print("*************  DONE - " + str(counter) + " *********************" )
 			print("")
 
 				
-
-
 
 
 
@@ -830,9 +869,33 @@ else:
 	print ("found file ")
 
 test = input("Test csv file (yes) to test: ")
-if( test == "yes"):
+if( test.lower() == "yes"):
 	print("testing csv file")
 	printCsvInfo(aFile)
+
+	testXml = input("Test xml output (yes) to test: ")
+	if(testXml.lower() == "yes" ):
+		outputDirectory = input("Please enter xml output directory: ")
+		if( not os.path.isdir(outputDirectory) ):
+			print("Directory " + outputDirectory + " does not exist or is not a directory")
+			sys.exit()
+		else:
+			print("Directory found " + outputDirectory)
+			 #open the csv and start iterating through the rows
+			with open(aFile, 'r') as csvfile:
+				fileReader = csv.reader(csvfile)
+				counter = 1
+				for row in fileReader:
+					if( row[25] ):
+						pages = int(row[25])
+						if( pages > 0):
+							print("processing " + str(pages) + " pages")
+							xmlFile = os.path.join(outputDirectory, "MODS_" + str(counter) + ".xml")
+							createXmlFile(row, counter, xmlFile)			
+					else:
+						print ("Skipping row " + str(counter) + " pages found were " + row[25] )
+					counter += 1
+
 else:
 	#base directory of files to import
 	baseDirectory = input("Please enter directory of files to import: ")
@@ -844,25 +907,25 @@ else:
 
 	#output directory for processing
 	outputDirectory = input("Please enter output directory: ")
-	if( not os.path.isdir(baseDirectory) ):
-		print("Directory " + baseDirectory + " does not exist or is not a directory")
+	if( not os.path.isdir(outputDirectory ) ):
+		print("Directory " + outputDirectory  + " does not exist or is not a directory")
 		sys.exit()
 	else:
-		print("Directory found " + baseDirectory) 
+		print("Directory found " + outputDirectory ) 
 
 	#open the csv and start iterating through the rows
 	with open(aFile, 'r') as csvfile:
 		fileReader = csv.reader(csvfile)
 		counter = 1
 		for row in fileReader:
-			if( row[23] ):
-				pages = int(row[23])
+			if( row[25] ):
+				pages = int(row[25])
 				if( pages > 0):
 					print("processing " + str(pages) + " pages")
 					createFileStructure(counter, row, baseDirectory, outputDirectory)
 			
 			else:
-				print ("Skipping row " + str(counter) + " pages found were " + row[23] )
+				print ("Skipping row " + str(counter) + " pages found were " + row[25] )
 			counter += 1
 		
 		
