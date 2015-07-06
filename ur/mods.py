@@ -135,6 +135,17 @@ class Abstract:
 
 		return topLevel
 
+class Publisher:
+	"""Holds publisher information"""
+	def __init__(self):
+		self.value = ''
+
+	def toModsElement(self, parentElement):
+		topLevel = ET.SubElement(parentElement, 'publisher')
+		
+		topLevel.text = self.value.strip()
+
+		return topLevel
 
 
 class Subject:

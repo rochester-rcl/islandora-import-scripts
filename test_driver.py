@@ -1,7 +1,7 @@
 
 import ur.xmlrow as xmlrow
 import os
-
+import csv
 import sys
 import xml.etree.ElementTree as ET
 
@@ -37,14 +37,14 @@ if(testXml.lower() == "yes" ):
 			fileReader = csv.reader(csvfile)
 			counter = 1
 			for row in fileReader:
-				if( row[25] ):
-					pages = int(row[25])
+				if( row[30] ):
+					pages = int(row[30])
 					if( pages > 0):
 						print("processing " + str(pages) + " pages")
 						xmlFile = os.path.join(outputDirectory, "MODS_" + str(counter) + ".xml")
 						xmlrow.createXmlFile(row, xmlFile)			
 				else:
-					print ("Skipping row " + str(counter) + " pages found were " + row[25] )
+					print ("Skipping row " + str(counter) + " pages found were " + row[30] )
 				counter += 1
 
 

@@ -37,7 +37,9 @@ def getFileList(itemDirectory, extension):
         print("checking file " + fileNameKey)
         if fileNameKey.find(extension) != -1 :
             print("Adding found file " + fileNameKey + " of size " + str(fileSize))
-            itemIdList[fileNameKey.split('.')[0]] = fileSize
+            itemIdList[fileNameKey.split('.')[0]] = fileSize #get the id only no extension
+        else:
+             logging.info("Could not find file name key " + fileNameKey +"  with extension " +  extension + " name pattern did not match")
         
     
     # sorted smallest to largest
@@ -56,7 +58,7 @@ def findMatchingItems(idStr, itemDirectoryStr):
 
 #get the list of files that can be added to the zip
 #if the data cannot be found it is logged
-def getZipableFileSet(idList):
+def getFileSet(idList):
     print("create zipable file set called")
     filesToAdd = []    
 
@@ -89,30 +91,29 @@ def createZipSet(files, zipFileName):
             print("adding file " + os.path.basename(aFile))
             myzip.write(aFile, os.path.basename(aFile))
 
-# generator that creates lists chunked up into a given size
-def createListSets(list, maxSize):
-    """ Yield successive max-sized chunks from l.
-    """
-    for i in range(0, len(list), maxSize):
-        yield list[i:i+maxSize]
+def createFolderSet(files, folderName):
+    print("Create folder set called " + folderName)
 
 
-def processSets(offset, maxFilesToProcess):
+def processSets(offset, maxFilesToProcess, zipOutput):
     fileIdList = getFileList(itemDirectory, "tif")
     setSize = len(fileIdList)
+    isZipOutput = false
+
     if(not maxFilesToProcess):
         maxFilesToProcess = setSize + 1
 
     if(not offset):
         offset = 0
 
+    if(zipOutput.lower() == "yes"):
+        isZipOutput = true
+
     offset = int(offset)
-#    maxFilesPerZip = int(maxFilesPerZip)
+
     maxFilesToProcess = int(maxFilesToProcess)
     setSize = int(setSize)
 
-
-#    print ("Max files per zip file = " + str(maxFilesPerZip))
     print ("Max files to process = " + str(maxFilesToProcess))
     print ("Offset = " + str(offset))
 
@@ -124,16 +125,21 @@ def processSets(offset, maxFilesToProcess):
         if( (counter >= offset) and (counter <= maxFilesToProcess) ) :
             print("counter = " + str(counter) + " processing file " + fileName + " with size " + str(fileSize))
             nextFile = fileName
-            if( (totalBytes + fileSize) < 2000000000):
+            if( (totalBytes + fileSize) < 2000000000): #keep adding files until 2GB max data set size reached
                 print("file size " + str(totalBytes + fileSize) + " less than 2Gb")
                 totalBytes = totalBytes + fileSize
                 fileSet.append(fileName)
                 counter = counter + 1
-            else:
+            else: #we've hit the 2GB limit write out the data
                 print("file size " + str(totalBytes + fileSize) + "  Larger than 2Gb adding file " + fileName + " to next set")
-                zipFileSet = getZipableFileSet(fileSet)
-                createZipSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip")
-                print("creating file set " + zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip size = " + str(totalBytes))
+                zipFileSet = getFileSet(fileSet)
+
+                if( isZipOutput ):
+                    createZipSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip")
+                    print("creating zip file set " + zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip size = " + str(totalBytes)
+                else:
+                    createFolderSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter))
+                    print("creating folder file set " + zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip size = " + str(totalBytes)
                 
                 totalBytes = fileSize
                 fileSet = [] 
@@ -142,10 +148,16 @@ def processSets(offset, maxFilesToProcess):
                 startCount = counter
                 print("resetting startCount " + str(startCount) + "offset = " + str(offset) + "")
 
-    if(len(fileSet) > 0):
-        zipFileSet = getZipableFileSet(fileSet)
-        createZipSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter - 1) + ".zip")
-        print("creating file set " + zipOutDir + "aep_" + str(startCount) + "_to_" + str(counter -1) + ".zip size = " + str(totalBytes))
+    if(len(fileSet) > 0): #handle the remaining files
+        zipFileSet = getFileSet(fileSet)
+        if( isZipOutput):
+            createZipSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter - 1) + ".zip")
+            print("creating zip set " + zipOutDir + "aep_" + str(startCount) + "_to_" + str(counter -1) + ".zip size = " + str(totalBytes))
+        else:
+            createFolderSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter - 1))
+            print("creating folder set " + zipOutDir + "aep_" + str(startCount) + "_to_" + str(counter -1) + " size = " + str(totalBytes))
+
+
 
 
 
@@ -153,6 +165,7 @@ def processSets(offset, maxFilesToProcess):
 # maxFilesPerZip = input("Please enter maximum number of files per zip file: ")
 maxFilesToProcess = input("Please enter maximum number of files to process enter to process all: ")
 offset = input("Please enter the offset position (inclusive) press enter to start from the beginning: ")
+zipOutput = input("Zip output(yes/no) - enter and default is folder output: ")
 
 
 processSets(offset, maxFilesToProcess)
