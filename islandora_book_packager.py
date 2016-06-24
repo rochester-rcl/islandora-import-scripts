@@ -14,6 +14,7 @@ def find(name, path):
         if name in files:
             return os.path.join(root, name)
 
+
 # ##################################1
 # Creates a folder for every page based on the file name - this is a
 # requirement of islandora
@@ -44,17 +45,34 @@ def createPageStructure(pages, baseDirectory, baseFilename, bookDir, sourceFileP
 			print("Could not find file " + sourceFile)
 			sys.exit()
 		else:
-			pageDir = os.path.join(bookDir, "page-" + pageName)
+			pageDir = os.path.join(bookDir, pageName)
 			destFile = os.path.join(pageDir, "OBJ.tif")
 			print("source  = " + sourceFile + " dest = " + destFile)
 			print ("creating directory " + pageDir)
 			os.mkdir(pageDir)
 			shutil.copy(sourceFile, destFile)
 
+# ##################################
+# Add a pdf file to the directory
+# ##################################
+def addPdf(pdfDirectory, baseFilename, bookDir, sourceFilePaddLevel):
+	#create the padding format for source file
+	sourceFilePaddFormat = "{0:0" + sourceFilePadd + "d}"
+	#source file name
+	filename = baseFilename + ".pdf"
+	sourceFile = find(filename, pdfDirectory)
+	if( not os.path.isfile(sourceFile) ):
+		print("Could not find file " + filename)
+		sys.exit()
+	else:
+		destFile = os.path.join(bookDir, "PDF")
+		shutil.copy(sourceFile, destFile)
+		print("source  = " + sourceFile + " dest = " + destFile)
 
-#
-#  Create the file structure for a book in islandora
-#
+
+# ##################################
+# Create the file structure for a book in islandora
+# ##################################
 def createFileStructure(counter, row, baseDirectory, outputDirectory, sourceFilePaddLevel):
 	#base file name
 	baseFilename = row[31]
@@ -67,8 +85,7 @@ def createFileStructure(counter, row, baseDirectory, outputDirectory, sourceFile
 	xmlFile = os.path.join(bookDir, "MODS" + ".xml")
 	xmlrow.createXmlFile(row, xmlFile)
 	createPageStructure(pages, baseDirectory, baseFilename, bookDir, sourceFilePaddLevel)
-
-	
+	return bookDir
 
 
 # ########################################
@@ -98,9 +115,21 @@ if( not os.path.isdir(baseDirectory) ):
 else:
 	print("Directory found " + baseDirectory) 
 
+hasPdfFiles = input("Are there seperate PDF files to import (Yes/No) default is No: ")
+if( hasPdfFiles.lower() == "yes"):
+	#base directory of files to import
+	pdfDirectory = input("Please enter PDF directory of files to import: ")
+	if( not os.path.isdir(pdfDirectory) ):
+		print("Directory " + pdfDirectory + " does not exist or is not a directory")
+		sys.exit()
+	else:
+		print("PDF directory found " + pdfDirectory)
+
+
+
 #output directory for processing
 outputDirectory = input("Please enter output directory: ")
-if( not os.path.isdir(outputDirectory ) ):
+if( not os.path.isdir(outputDirectory) ):
 	print("Directory " + outputDirectory  + " does not exist or is not a directory")
 	sys.exit()
 else:
@@ -115,7 +144,11 @@ with open(aFile, 'r') as csvfile:
 			pages = int(row[30])
 			if( pages > 0):
 				print("processing " + str(pages) + " pages")
-				createFileStructure(counter, row, baseDirectory, outputDirectory, paddLevel)
+				bookDir = createFileStructure(counter, row, baseDirectory, outputDirectory, paddLevel)
+				if(hasPdfFiles):
+					print("adding pdf file ")
+					baseFilename = row[31]
+					addPdf(pdfDirectory, baseFilename, bookDir, paddLevel)
 		else:
 			print ("Skipping row " + str(counter) + " pages found were " + row[30] )
 		counter += 1
