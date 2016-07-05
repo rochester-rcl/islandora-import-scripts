@@ -1,7 +1,7 @@
-import ur.xmlrow as xml_row
+import ur.csvtoxml as xml_row
 import os
-import csv
 import sys
+import csv
 
 # ########################################
 # Main Program for testing output
@@ -15,8 +15,10 @@ if not os.path.isfile(a_file):
 else:
     print("found file ")
 
+num_rows = input("Please enter number of rows: ")
+
 print("testing csv file")
-xml_row.print_csv_info(a_file)
+xml_row.print_csv_info(a_file, int(num_rows))
 
 test_xml = input("Test xml output (yes) to test: ")
 if test_xml.lower() == "yes":
@@ -31,8 +33,8 @@ if test_xml.lower() == "yes":
             fileReader = csv.reader(csv_file)
             counter = 1
             for row in fileReader:
-                if row[30]:
-                    pages = int(row[30])
+                if row[31]:
+                    pages = int(row[31])
                     if pages > 0:
                         print("processing " + str(pages) + " pages")
                         xmlFile = os.path.join(output_directory, "MODS_" + str(counter) + ".xml")
@@ -40,3 +42,4 @@ if test_xml.lower() == "yes":
                 else:
                     print("Skipping row " + str(counter) + " pages found were " + row[30])
                 counter += 1
+

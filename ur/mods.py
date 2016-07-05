@@ -1,481 +1,576 @@
 #!/usr/bin/python
 
 import xml.etree.ElementTree as ET
-from xml.dom.minidom import Node 
+
 
 # #########################################################
 # Represents all the MODS metadata classes for import 
 # #########################################################
 class RecordInfo:
-	"""Holds record info information"""
-	def __init__(self):
-		self.value = ''
+    """Holds record info information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'recordInfo')
-		
-		if(self.value):
-			topLevel.text = self.value.strip()
+    def __init__(self):
+        self.value = ''
 
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'recordInfo')
 
-		return topLevel
+        if self.value:
+            top_level.text = self.value.strip()
+
+        return top_level
+
 
 class RecordContentSource:
-	"""Holds content source information"""
-	def __init__(self):
-		self.value = ''
+    """Holds content source information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'recordContentSource')
-		
-		if(self.value):
-			topLevel.text = self.value.strip()
+    def __init__(self):
+        self.value = ''
 
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'recordContentSource')
 
-		return topLevel
+        if self.value:
+            top_level.text = self.value.strip()
+
+        return top_level
+
 
 class LanguageOfCataloging:
-	"""Holds language of cataloging information"""
-	def __init__(self):
-		self.value = ''
+    """Holds language of cataloging information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'languageOfCataloging')
-		
-		if(self.value):
-			topLevel.text = self.value.strip()
+    def __init__(self):
+        self.value = ''
 
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'languageOfCataloging')
 
-		return topLevel
+        if self.value:
+            top_level.text = self.value.strip()
 
+        return top_level
 
 
 class PhysicalDescription:
-	"""Holds physical description information"""
-	def __init__(self):
-		self.type = ''
+    """Holds physical description information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'physicalDescription')
-		
-		if(self.type):
-			topLevel.set('type', self.type.strip())
+    def __init__(self):
+        self.type = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'physicalDescription')
+
+        if self.type:
+            top_level.set('type', self.type.strip())
+
+        return top_level
+
 
 class TypeOfResource:
-	"""Holds type of resource information"""
-	def __init__(self):
-		self.value = ''
+    """Holds type of resource information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'typeOfResource')
-		topLevel.text = self.value.strip()
+    def __init__(self):
+        self.value = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'typeOfResource')
+        top_level.text = self.value.strip()
+
+        return top_level
+
 
 class Form:
-	"""Holds form information"""
-	def __init__(self):
-		self.authority = ''
-		self.value = ''
+    """Holds form information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'form')
-		
-		if(self.authority):
-			topLevel.set('authority', self.authority.strip())
+    def __init__(self):
+        self.authority = ''
+        self.value = ''
 
-		topLevel.text = self.value.strip()
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'form')
+
+        if self.authority:
+            top_level.set('authority', self.authority.strip())
+
+        top_level.text = self.value.strip()
+        return top_level
+
 
 class InternetMediaType:
-	"""Holds internet media type information"""
-	def __init__(self):
-		self.value = ''
+    """Holds internet media type information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'internetMediaType')
-		
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'internetMediaType')
+
+        top_level.text = self.value.strip()
+        return top_level
+
 
 class DigitalOrigin:
-	"""Holds digital origin information"""
-	def __init__(self):
-		self.value = ''
+    """Holds digital origin information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'digitalOrigin')
-		
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'digitalOrigin')
+
+        top_level.text = self.value.strip()
+        return top_level
 
 
 class Extent:
-	"""Holds extent information"""
-	def __init__(self):
-		self.value = ''
+    """Holds extent information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'extent')
-		
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'extent')
+
+        top_level.text = self.value.strip()
+        return top_level
+
 
 class Abstract:
-	"""Holds abstract information"""
-	def __init__(self):
-		self.value = ''
+    """Holds abstract information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'abstract')
-		
-		topLevel.text = self.value.strip()
+    def __init__(self):
+        self.value = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'abstract')
+
+        top_level.text = self.value.strip()
+
+        return top_level
+
 
 class Publisher:
-	"""Holds publisher information"""
-	def __init__(self):
-		self.value = ''
+    """Holds publisher information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'publisher')
-		
-		topLevel.text = self.value.strip()
+    def __init__(self):
+        self.value = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'publisher')
+
+        top_level.text = self.value.strip()
+
+        return top_level
 
 
 class Subject:
-	"""Holds subject information"""
-	def __init__(self):
-		self.type = ''
+    """Holds subject information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'subject')
-		
-		if(self.type):
-			topLevel.set('type', self.type.strip())
+    def __init__(self):
+        self.type = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'subject')
+
+        if self.type:
+            top_level.set('type', self.type.strip())
+
+        return top_level
+
 
 class Topic:
-	"""Holds topic information"""
-	def __init__(self):
-		self.value = ''
+    """Holds topic information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'topic')
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'topic')
+        top_level.text = self.value.strip()
+        return top_level
+
 
 class Geographic:
-	"""Holds geographic information"""
-	def __init__(self):
-		self.value = ''	
+    """Holds geographic information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'geographic')
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'geographic')
+        top_level.text = self.value.strip()
+        return top_level
+
 
 class Genre:
-	"""Holds genre information"""
-	def __init__(self):
-		self.authority = ''
-		self.value = ''
+    """Holds genre information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'genre')
-		
-		if(self.authority):
-			topLevel.set('authority', self.authority.strip())
+    def __init__(self):
+        self.authority = ''
+        self.value = ''
 
-		topLevel.text = self.value.strip()
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'genre')
+
+        if self.authority:
+            top_level.set('authority', self.authority.strip())
+
+        top_level.text = self.value.strip()
+        return top_level
+
 
 class Note:
-	"""Holds note information"""
-	def __init__(self):
-		self.value = ''
+    """Holds note information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'note')
-		
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+        self.type = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'note')
+        if self.type:
+            top_level.set('type', self.type.strip())
+
+        top_level.text = self.value.strip()
+        return top_level
 
 
 class Role:
-	"""Holds role information"""
-	def __init__(self):
-		self.type = ''
+    """Holds role information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'role')
-		
-		if(self.type):
-			topLevel.set('type', self.type.strip())
+    def __init__(self):
+        self.type = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'role')
+
+        if self.type:
+            top_level.set('type', self.type.strip())
+
+        return top_level
+
 
 class Language:
-	"""Holds language information"""
-	def __init__(self):
-		self.type = ''
+    """Holds language information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'language')
-		
-		if(self.type):
-			topLevel.set('type', self.type.strip())
+    def __init__(self):
+        self.type = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'language')
+
+        if self.type:
+            top_level.set('type', self.type.strip())
+
+        return top_level
+
 
 class LanguageTerm:
-	"""Holds language term information"""
-	def __init__(self):
-		self.type = ''
-		self.value = ''
-		self.authority = ''
+    """Holds language term information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'languageTerm')
-		
-		if(self.type):
-			topLevel.set('type', self.type.strip())
+    def __init__(self):
+        self.type = ''
+        self.value = ''
+        self.authority = ''
 
-		if(self.authority):
-			topLevel.set('authority', self.authority.strip())
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'languageTerm')
 
-		topLevel.text = self.value.strip()
-		return topLevel
+        if self.type:
+            top_level.set('type', self.type.strip())
 
+        if self.authority:
+            top_level.set('authority', self.authority.strip())
+
+        top_level.text = self.value.strip()
+        return top_level
 
 
 class RoleTerm:
-	"""Holds role term information"""
-	def __init__(self):
-		self.value = ''
-		self.authority = ''
-		self.type = ''
+    """Holds role term information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'roleTerm')
-		
-		if(self.type):
-			topLevel.set('type', self.type.strip())
+    def __init__(self):
+        self.value = ''
+        self.authority = ''
+        self.type = ''
 
-		if(self.authority):
-			topLevel.set('authority', self.authority.strip())
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'roleTerm')
 
-		topLevel.text = self.value.strip()
-		return topLevel
+        if self.type:
+            top_level.set('type', self.type.strip())
 
+        if self.authority:
+            top_level.set('authority', self.authority.strip())
+
+        top_level.text = self.value.strip()
+        return top_level
 
 
 class Name:
-	"""Holds name information"""
-	def __init__(self):
-		self.type = ''
+    """Holds name information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'name')
-		
-		if(self.type):
-			topLevel.set('type', self.type.strip())
+    def __init__(self):
+        self.type = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'name')
+
+        if self.type:
+            top_level.set('type', self.type.strip())
+
+        return top_level
+
 
 class NamePart:
-	"""Holds name part information"""
-	def __init__(self):
-		self.value = ''
-		
+    """Holds name part information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'namePart')
-		
-		topLevel.text = self.value.strip()
+    def __init__(self):
+        self.value = ''
 
-		return topLevel
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'namePart')
 
+        top_level.text = self.value.strip()
+
+        return top_level
 
 
 class DateCreated:
-	"""Holds date created information"""
-	def __init__(self):
-		self.value = ''
-		self.encoding = ''
-		self.qualifier = ''
-		self.keyDate = ''
-		self.point = ''	
+    """Holds date created information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'dateCreated')
-		
-		if(self.encoding):
-			topLevel.set('encoding', self.encoding.strip())
+    def __init__(self):
+        self.value = ''
+        self.encoding = ''
+        self.qualifier = ''
+        self.keyDate = ''
+        self.point = ''
 
-		if(self.qualifier):
-			topLevel.set('qualifier', self.qualifier.strip())	
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'dateCreated')
 
-		if(self.keyDate):
-			topLevel.set('keyDate', self.keyDate.strip())
+        if self.encoding:
+            top_level.set('encoding', self.encoding.strip())
 
-		if(self.point):
-			topLevel.set('point', self.point.strip())
+        if self.qualifier:
+            top_level.set('qualifier', self.qualifier.strip())
 
-		topLevel.text = self.value.strip()
+        if self.keyDate:
+            top_level.set('keyDate', self.keyDate.strip())
 
-		return topLevel
+        if self.point:
+            top_level.set('point', self.point.strip())
+
+        top_level.text = self.value.strip()
+
+        return top_level
+
 
 class DateIssued:
-	"""Holds date issued information"""
-	def __init__(self):
-		self.value = ''
-		self.encoding = ''
-		self.qualifier = ''
-		self.keyDate = ''	
+    """Holds date issued information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'dateIssued')
-		
-		if(self.encoding):
-			topLevel.set('encoding', self.encoding.strip())
+    def __init__(self):
+        self.value = ''
+        self.encoding = ''
+        self.qualifier = ''
+        self.keyDate = ''
 
-		if(self.qualifier):
-			topLevel.set('qualifier', self.qualifier.strip())	
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'dateIssued')
 
-		if(self.keyDate):
-			topLevel.set('keyDate', self.keyDate.strip())
+        if self.encoding:
+            top_level.set('encoding', self.encoding.strip())
 
-		topLevel.text = self.value.strip()
+        if self.qualifier:
+            top_level.set('qualifier', self.qualifier.strip())
 
-		return topLevel
+        if self.keyDate:
+            top_level.set('keyDate', self.keyDate.strip())
+
+        top_level.text = self.value.strip()
+
+        return top_level
+
 
 class OriginInfo:
-	"""Holds origin info information"""
-	def __init__(self):
-		self.value = ''	
+    """Holds origin info information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'originInfo')
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'originInfo')
+        return top_level
+
 
 class Place:
-	"""Holds place information"""
-	def __init__(self):
-		self.value = ''	
+    """Holds place information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'place')
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'place')
+        return top_level
+
 
 class PlaceTerm:
-	"""Holds place term information"""
-	def __init__(self):
-		self.type = ''
-		self.value = ''
+    """Holds place term information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'placeTerm')
-		
-		if(self.type):
-			topLevel.set('type', self.type.strip())
+    def __init__(self):
+        self.type = ''
+        self.value = ''
 
-		topLevel.text = self.value.strip()
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'placeTerm')
 
-		return topLevel
+        if self.type:
+            top_level.set('type', self.type.strip())
+
+        top_level.text = self.value.strip()
+
+        return top_level
+
 
 class RelatedItem:
-	"""Holds Releated Item information"""
-	def __init__(self):
-		self.type = ''
-		self.value = ''	
+    """Holds Releated Item information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'relatedItem')
-		if(self.type):
-			topLevel.set('type', self.type.strip())
-		 
-		return topLevel
+    def __init__(self):
+        self.type = ''
+        self.value = ''
+        self.display_label = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'relatedItem')
+        if self.type:
+            top_level.set('type', self.type.strip())
+        if self.display_label:
+            top_level.set('displayLabel', self.display_label.strip())
+
+        return top_level
+
 
 class TitleInfo:
-	"""Holds identifier information"""
-	def __init__(self):
-		self.value = ''	
+    """Holds identifier information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'titleInfo')
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'titleInfo')
+        return top_level
+
 
 class Title:
-	"""Holds title information"""
-	def __init__(self):
-		self.value = ''	
+    """Holds title information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'title')
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'title')
+        top_level.text = self.value.strip()
+        return top_level
 
 
 class Location:
-	"""Holds identifier information"""
-	def __init__(self):
-		self.value = ''	
+    """Holds identifier information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'location')
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'location')
+        return top_level
+
 
 class PhysicalLocation:
-	"""Holds physical location information"""
-	def __init__(self):
-		self.value = ''	
+    """Holds physical location information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'physicalLocation')
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'physicalLocation')
+        top_level.text = self.value.strip()
+        return top_level
 
 
 class ShelfLocator:
-	"""Holds shelf locator information"""
-	def __init__(self):
-		self.value = ''
+    """Holds shelf locator information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'shelfLocator')
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'shelfLocator')
+        top_level.text = self.value.strip()
+        return top_level
+
+
+class HoldingSimple:
+    """Holdings information"""
+
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'holdingSimple')
+        top_level.text = self.value.strip()
+        return top_level
+
+
+class CopyInformation:
+    """Holdings information"""
+
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'copyInformation')
+        top_level.text = self.value.strip()
+        return top_level
+
+
+class EnumerationAndChronology:
+
+    def __init__(self):
+        self.value = ''
+        self.unit_type = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'enumerationAndChronology')
+        top_level.text = self.value.strip()
+
+        if self.unit_type:
+            top_level.set('qualifier', str(self.unit_type).strip())
+
+        return top_level
+
 
 class AccessCondition:
-	"""Holds access condition information"""
-	def __init__(self):
-		self.value = ''
+    """Holds access condition information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'accessCondition')
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.value = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'accessCondition')
+        top_level.text = self.value.strip()
+        return top_level
+
 
 class Identifier:
-	"""Holds identifier information"""
-	def __init__(self):
-		self.type = ''
-		self.value = ''
+    """Holds identifier information"""
 
-	def toModsElement(self, parentElement):
-		topLevel = ET.SubElement(parentElement, 'identifier')
-		if(self.type):
-			topLevel.set('type', self.type.strip())
-		 
-		
-		topLevel.text = self.value.strip()
-		return topLevel
+    def __init__(self):
+        self.type = ''
+        self.value = ''
 
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'identifier')
+        if self.type:
+            top_level.set('type', self.type.strip())
 
+        top_level.text = self.value.strip()
+        return top_level

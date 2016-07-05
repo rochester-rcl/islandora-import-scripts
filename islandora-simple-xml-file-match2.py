@@ -5,7 +5,7 @@ import datetime
 import sys
 
 
-#logging info
+# logging info
 dateTimeInfo = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
