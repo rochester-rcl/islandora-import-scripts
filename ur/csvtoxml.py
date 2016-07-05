@@ -315,6 +315,13 @@ def build_xml(row):
             extent.value = str(row[31]) + " pages"
             extent.to_mods_element(physical_description_element)
 
+        if row[32]:
+            # number of files
+            physical_note = mods.Note
+            physical_note.type = "number of files"
+            physical_note.value = str(row[32])
+            physical_note.to_mods_element(physical_description_element)
+
     # type of resource
     if row[30]:
         type_of_resource = mods.TypeOfResource()

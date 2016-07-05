@@ -105,7 +105,7 @@ else:
 # check for source file padd level
 paddLevel = 1
 sourceFilePadd = input(
-    "Please indicate source file page name padd level default is 1 meaning no 0's in front of page: ")
+    "Please indicate source file page name pad level default is 1 meaning no 0's in front of page: ")
 if (sourceFilePadd):
     paddLevel = int(sourceFilePadd)
 
@@ -117,7 +117,7 @@ if (not os.path.isdir(baseDirectory)):
 else:
     print("Directory found " + baseDirectory)
 
-hasPdfFiles = input("Are there seperate PDF files to import (Yes/No) default is No: ")
+hasPdfFiles = input("Are there separate PDF files to import (Yes/No) default is No: ")
 if hasPdfFiles.lower() == "yes":
     # base directory of files to import
     pdfDirectory = input("Please enter PDF directory of files to import: ")
