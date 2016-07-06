@@ -1,4 +1,6 @@
-import ur.mods as mods
+#!/usr/bin/python
+
+import mods
 import csv
 import xml.etree.ElementTree as ET
 
@@ -6,7 +8,7 @@ import xml.etree.ElementTree as ET
 # ##########################################
 # Build the xml file using the MODS classes
 # ##########################################
-def build_xml(row):
+def build_xml(row, current_page = None):
     print('build xml')
     root = ET.Element('mods', {"xmlns:xlink": "http://www.w3.org/1999/xlink",
                                "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -309,7 +311,13 @@ def build_xml(row):
             internet_media_type.value = row[29]
             internet_media_type.to_mods_element(physical_description_element)
 
-        if row[31]:
+        # if it's a current page use that otherwise use book mods
+        if current_page:
+            extent = mods.Extent()
+            extent.value = "p. " + str(current_page)
+            extent.to_mods_element(physical_description_element)
+
+        elif row[31]:
             # extent
             extent = mods.Extent()
             extent.value = str(row[31]) + " pages"
@@ -356,10 +364,10 @@ def build_xml(row):
 # ##################################################
 #  Create an xml with the data from the xml file
 # ##################################################
-def create_xml_file(row, file_name):
+def create_xml_file(row, file_name, current_page = None):
 
     print("XML file name will be = " + file_name)
-    root_node = build_xml(row)
+    root_node = build_xml(row, current_page)
     tree = ET.ElementTree(root_node)
 
     if file_name:

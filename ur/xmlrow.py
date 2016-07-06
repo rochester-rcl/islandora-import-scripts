@@ -1,14 +1,14 @@
 #!/usr/bin/python
 
 import xml.etree.ElementTree as ET
-import ur.mods as mods
+import mods
 import csv
 
 
 # ##########################################
 # Build the xml file using the MODS classes
 # ##########################################
-def build_xml(row):
+def build_xml(row, current):
     print('build xml')
     root = ET.Element('mods', {"xmlns:xlink": "http://www.w3.org/1999/xlink",
                                "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -296,7 +296,7 @@ def build_xml(row):
 # ##################################################
 #  Create an xml with the data from the xml file
 # ##################################################
-def create_xml_file(row, file_name):
+def create_xml_file(row, file_name, page_number = None):
     print("XML file name will be = " + file_name)
     root_node = build_xml(row)
     tree = ET.ElementTree(root_node)

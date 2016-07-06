@@ -1,4 +1,4 @@
-import ur.xmlrow as xmlrow
+import csvtoxml as xmlrow
 import os
 import csv
 import sys
@@ -20,7 +20,7 @@ def find(name, path):
 # Creates a folder for every page based on the file name - this is a
 # requirement of Islandora
 # ##################################
-def create_page_structure(pages, base_directory, base_filename, book_dir, source_file_pad):
+def create_page_structure(pages, base_directory, row, base_filename, book_dir, source_file_pad):
     # default format - no leading zeros
     page_format = "{0:01d}"
 
@@ -34,11 +34,11 @@ def create_page_structure(pages, base_directory, base_filename, book_dir, source
         # three leading zeros
         page_format = "{0:04d}"
 
-    # off by one so increase so it works correctly
+    # exclusive by one so increase by 1
     for page in range(1, pages + 1):
         page_name = page_format.format(page)
         # create the padding format for source file
-        source_file_pad_format = "{0:0" + source_file_pad + "d}"
+        source_file_pad_format = "{0:0" + str(source_file_pad) + "d}"
         # source file name
         filename = base_filename + "_" + source_file_pad_format.format(page) + ".tif"
 
@@ -53,6 +53,10 @@ def create_page_structure(pages, base_directory, base_filename, book_dir, source
             print("creating directory " + page_dir)
             os.mkdir(page_dir)
             shutil.copy(source_file, dest_file)
+
+            # add page xml data
+            xml_file = os.path.join(page_dir, "MODS" + ".xml")
+            xmlrow.create_xml_file(row, xml_file, page)
 
 
 # ##################################
@@ -87,7 +91,7 @@ def create_file_structure(counter, row, base_directory, output_directory, source
     os.mkdir(book_dir)
     xml_file = os.path.join(book_dir, "MODS" + ".xml")
     xmlrow.create_xml_file(row, xml_file)
-    create_page_structure(pages, base_directory, base_filename, book_dir, source_file_pad_level)
+    create_page_structure(pages, base_directory, row, base_filename, book_dir, source_file_pad_level)
     return book_dir
 
 
