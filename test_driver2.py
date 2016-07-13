@@ -37,9 +37,15 @@ if test_xml.lower() == "yes":
                     pages = int(row[31])
                     if pages > 0:
                         print("processing " + str(pages) + " pages")
-                        xmlFile = os.path.join(output_directory, "MODS_" + str(counter) + ".xml")
+                        book_dir = os.path.join(output_directory, str(counter))
+                        print("creating directory " + book_dir)
+                        os.mkdir(book_dir)
+                        xmlFile = os.path.join(book_dir, "MODS_" + str(counter) + ".xml")
                         xml_row.create_xml_file(row, xmlFile)
+                        for page in range(1, pages + 1):
+                            pageFile = os.path.join(book_dir, "MODS_page_" + str(page) + ".xml")
+                            xml_row.create_xml_file(row, pageFile, page)
                 else:
-                    print("Skipping row " + str(counter) + " pages found were " + row[30])
+                    print("Skipping row " + str(counter) + " pages found were " + row[31])
                 counter += 1
 

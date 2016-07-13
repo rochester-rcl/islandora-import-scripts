@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import mods
+from ur import mods
 import csv
 import xml.etree.ElementTree as ET
 
@@ -73,7 +73,11 @@ def build_xml(row, current_page = None):
         title_info_element = title_info.to_mods_element(root)
 
         title = mods.Title()
-        title.value = row[5]
+
+        if current_page:
+            title.value = 'p.' + str(current_page) + ' ' + row[5]
+        else:
+            title.value = row[5]
 
         title.to_mods_element(title_info_element)
 
