@@ -80,11 +80,10 @@ def add_pdf(pdf_directory, base_filename, book_dir, source_file_pad_level):
 # ##################################
 # Create the file structure for a book in Islandora
 # ##################################
-def create_file_structure(counter, row, base_directory, output_directory, source_file_pad_level):
+def create_file_structure(pages, counter, row, base_directory, output_directory, source_file_pad_level):
     # base file name
     base_filename = row[33]
 
-    pages = int(row[31])
     print("filename = " + base_filename)
     book_dir = os.path.join(output_directory, str(counter))
     print("creating directory " + book_dir)
@@ -150,7 +149,7 @@ def main():
                 pages = int(row[31])
                 if pages > 0:
                     print("processing " + str(pages) + " pages")
-                    book_dir = create_file_structure(counter, row, base_directory, output_directory, pad_level)
+                    book_dir = create_file_structure(pages, counter, row, base_directory, output_directory, pad_level)
                     if has_pdf_files:
                         print("adding pdf file ")
                         base_file_name = row[33]
