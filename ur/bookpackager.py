@@ -64,7 +64,6 @@ def create_page_structure(pages, base_directory, row, base_filename, book_dir, s
 # Add a pdf file to the directory
 # ##################################
 def add_pdf(pdf_directory, base_filename, book_dir, book_num):
-    
     # source file name
     filename = filename = base_filename + ".pdf"
     print("trying to find filename " + filename + " in directory " + pdf_directory)
