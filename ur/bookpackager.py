@@ -64,7 +64,6 @@ def create_page_structure(pages, base_directory, row, base_filename, book_dir, s
 # ##################################
 def add_pdf(pdf_directory, base_filename, book_dir, source_file_pad_level):
     # create the padding format for source file
-    source_file_padd_format = "{0:0" + source_file_pad_level + "d}"
     # source file name
     filename = base_filename + ".pdf"
     source_file = find(filename, pdf_directory)
