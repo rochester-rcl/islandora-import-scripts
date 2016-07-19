@@ -150,8 +150,15 @@ def main():
         file_reader = csv.reader(csv_file)
         counter = 1
         for row in file_reader:
-            if row[32]:
-                pages = int(row[32])
+            if row[31] or row[32]:
+
+                pages = 0
+                #default to number of files first
+                if row[32]:
+                    pages = int(row[32])
+                elif row[31]:
+                    pages = int(row[31])
+
                 if pages > 0:
                     print("processing " + str(pages) + " pages")
                     book_dir = create_file_structure(pages, counter, row, base_directory, output_directory, pad_level, name_separator)
@@ -159,8 +166,10 @@ def main():
                         print("adding pdf file ")
                         base_file_name = row[33]
                         add_pdf(pdf_directory, base_file_name, book_dir, counter)
+                else: 
+                    print("pages was 0")
             else:
-                print("Skipping row " + str(counter) + " pages found were " + pages)
+                print("Skipping row " + str(counter) + " no pages found were found " + row[31])
             counter += 1
 
 if __name__ == '__main__':
