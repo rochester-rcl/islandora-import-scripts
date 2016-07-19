@@ -1,4 +1,4 @@
-import ur.csvtoxml as xmlrow
+import csvtoxml as xmlrow
 import os
 import csv
 import sys
@@ -23,10 +23,11 @@ def find(name, path):
 def add_obj(source_directory, dest_directory, base_filename, extension):
     filename = base_filename + "." + extension
     source_file = find(filename, source_directory)
-    if not os.path.isfile(source_file):
-        print("Could not find file " + source_file)
-        sys.exit()
+    if not source_file or not os.path.isfile(source_file):
+        print("Could not find file " + str(source_file) + " skipping ")
+        return None
     else:
+        print("is file = " + str(os.path.isfile(source_file)))
         dest_file = os.path.join(dest_directory, filename)
         shutil.copy(source_file, dest_file)
         return dest_file
@@ -40,9 +41,14 @@ def create_file_structure(row, source_directory, output_directory, extension):
     base_filename = row[33]
 
     print("filename = " + base_filename)
-    xml_file = os.path.join(output_directory, base_filename + ".xml")
-    xmlrow.create_xml_file(row, xml_file)
+    
     new_file = add_obj(source_directory, output_directory, base_filename, extension)
+    if new_file:
+        xml_file = os.path.join(output_directory, base_filename + ".xml")
+        xmlrow.create_xml_file(row, xml_file)
+    else:
+        print("no xml file created for " + base_filename + " file does not exist")
+
     return new_file
 
 
@@ -81,14 +87,20 @@ def main():
     else:
         print("Directory found " + output_directory)
 
+        # output directory for processing
+    extension = input("Please enter file extension: ")
+    if not extension:
+        print("Must enter a valid extension")
+        sys.exit()
+
     # open the csv and start iterating through the rows
     with open(aFile, 'r') as csv_file:
         file_reader = csv.reader(csv_file)
         counter = 1
 
         for row in file_reader:
-            print("processing row " + counter )
-            create_file_structure(row, base_directory, output_directory)
+            print("processing row " + str(counter) )
+            create_file_structure(row, base_directory, output_directory, extension)
             counter += 1
 
 if __name__ == '__main__':
