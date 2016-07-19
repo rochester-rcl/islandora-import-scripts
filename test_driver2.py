@@ -33,8 +33,8 @@ if test_xml.lower() == "yes":
             fileReader = csv.reader(csv_file)
             counter = 1
             for row in fileReader:
-                if row[31]:
-                    pages = int(row[31])
+                if row[32]:
+                    pages = int(row[32])
                     if pages > 0:
                         print("processing " + str(pages) + " pages")
                         book_dir = os.path.join(output_directory, str(counter))
@@ -46,6 +46,6 @@ if test_xml.lower() == "yes":
                             pageFile = os.path.join(book_dir, "MODS_page_" + str(page) + ".xml")
                             xml_row.create_xml_file(row, pageFile, page)
                 else:
-                    print("Skipping row " + str(counter) + " pages found were " + row[31])
+                    print("Skipping row " + str(counter) + " pages found were " + row[32])
                 counter += 1
 

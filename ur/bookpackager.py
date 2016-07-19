@@ -20,7 +20,7 @@ def find(name, path):
 # Creates a folder for every page based on the file name - this is a
 # requirement of Islandora
 # ##################################
-def create_page_structure(pages, base_directory, row, base_filename, book_dir, source_file_pad):
+def create_page_structure(pages, base_directory, row, base_filename, book_dir, source_file_pad, name_separator):
     # default format - no leading zeros
     page_format = "{0:01d}"
 
@@ -40,8 +40,9 @@ def create_page_structure(pages, base_directory, row, base_filename, book_dir, s
         # create the padding format for source file
         source_file_pad_format = "{0:0" + str(source_file_pad) + "d}"
         # source file name
-        filename = base_filename + "_" + source_file_pad_format.format(page) + ".tif"
+        filename = base_filename + name_separator + source_file_pad_format.format(page) + ".tif"
 
+        print("trying to find filename " + filename + " in directory " + base_directory)
         source_file = find(filename, base_directory)
         if not os.path.isfile(source_file):
             print("Could not find file " + source_file)
@@ -62,11 +63,11 @@ def create_page_structure(pages, base_directory, row, base_filename, book_dir, s
 # ##################################
 # Add a pdf file to the directory
 # ##################################
-def add_pdf(pdf_directory, base_filename, book_dir, source_file_pad_level):
-    # create the padding format for source file
-    source_file_padd_format = "{0:0" + source_file_pad_level + "d}"
+def add_pdf(pdf_directory, base_filename, book_dir, book_num):
+    
     # source file name
-    filename = base_filename + ".pdf"
+    filename = filename = base_filename + ".pdf"
+    print("trying to find filename " + filename + " in directory " + pdf_directory)
     source_file = find(filename, pdf_directory)
     if not os.path.isfile(source_file):
         print("Could not find file " + filename)
@@ -80,7 +81,7 @@ def add_pdf(pdf_directory, base_filename, book_dir, source_file_pad_level):
 # ##################################
 # Create the file structure for a book in Islandora
 # ##################################
-def create_file_structure(pages, counter, row, base_directory, output_directory, source_file_pad_level):
+def create_file_structure(pages, counter, row, base_directory, output_directory, source_file_pad_level, name_separator):
     # base file name
     base_filename = row[33]
 
@@ -90,7 +91,7 @@ def create_file_structure(pages, counter, row, base_directory, output_directory,
     os.mkdir(book_dir)
     xml_file = os.path.join(book_dir, "MODS" + ".xml")
     xmlrow.create_xml_file(row, xml_file)
-    create_page_structure(pages, base_directory, row, base_filename, book_dir, source_file_pad_level)
+    create_page_structure(pages, base_directory, row, base_filename, book_dir, source_file_pad_level, name_separator)
     return book_dir
 
 
@@ -108,10 +109,14 @@ def main():
 
     # check for source file pad level
     pad_level = 1
-    source_file_pad = input(
-        "Please indicate source file page name pad level default is 1 meaning no 0's in front of page: ")
+    source_file_pad = input("Please indicate source file page name pad level default is 1 meaning no 0's in front of page: ")
     if source_file_pad:
         pad_level = int(source_file_pad)
+
+    name_separator = "_"
+    source_name_separator = input("Please set filename seperator default is '_': ")
+    if source_name_separator:
+        name_separator = source_name_separator
 
     # base directory of files to import
     base_directory = input("Please enter directory of files to import: ")
@@ -121,6 +126,7 @@ def main():
     else:
         print("Directory found " + base_directory)
 
+    #pdf information if applicable
     pdf_directory = None
     has_pdf_files = input("Are there separate PDF files to import (Yes/No) default is No: ")
     if has_pdf_files.lower() == "yes":
@@ -145,17 +151,17 @@ def main():
         file_reader = csv.reader(csv_file)
         counter = 1
         for row in file_reader:
-            if row[31]:
-                pages = int(row[31])
+            if row[32]:
+                pages = int(row[32])
                 if pages > 0:
                     print("processing " + str(pages) + " pages")
-                    book_dir = create_file_structure(pages, counter, row, base_directory, output_directory, pad_level)
+                    book_dir = create_file_structure(pages, counter, row, base_directory, output_directory, pad_level, name_separator)
                     if has_pdf_files:
                         print("adding pdf file ")
                         base_file_name = row[33]
-                        add_pdf(pdf_directory, base_file_name, book_dir, pad_level)
+                        add_pdf(pdf_directory, base_file_name, book_dir, counter)
             else:
-                print("Skipping row " + str(counter) + " pages found were " + row[31])
+                print("Skipping row " + str(counter) + " pages found were " + pages)
             counter += 1
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from ur import mods
+import mods
 import csv
 import xml.etree.ElementTree as ET
 
@@ -329,7 +329,7 @@ def build_xml(row, current_page = None):
 
         if row[32]:
             # number of files
-            physical_note = mods.Note
+            physical_note = mods.Note()
             physical_note.type = "number of files"
             physical_note.value = str(row[32])
             physical_note.to_mods_element(physical_description_element)
