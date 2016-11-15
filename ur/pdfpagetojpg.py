@@ -2,7 +2,9 @@
 import subprocess
 from wand.image import Image
 
-def convert_pdf_page(sourcePdf,  baseheight, destination, pageNum = 0, quality = 75, colorspace="RGB"):
+def convert_pdf_page(sourcePdf,  baseWidth, destination, pageNum = 0, quality = 60, colorspace="RGB", dpi = 72):
+    
+
     # create format of  "DRIVE:\\dir1\\dir2\\file.pdf[pageNumber]"
     with Image(filename = sourcePdf + "[" + str(pageNum) + "]") as img:
        
@@ -11,19 +13,26 @@ def convert_pdf_page(sourcePdf,  baseheight, destination, pageNum = 0, quality =
         "-quality", 
         str(quality), 
         "-resize", 
-        "x{}".format(baseheight), 
+        "{}x".format(baseWidth), 
         "-colorspace", 
         colorspace, 
         "-flatten", 
-        destination]
+        "-set",
+        "units",
+        "PixelsPerInch",
+        "-density", 
+        str(dpi),
+        destination, 
+       ]
 
         #run the command
         subprocess.run(command, shell=True)
 
 def main():
-    convert_pdf_page(sourcePdf = "F:\\ec-test\\junk\\2011_April.pdf", 
-        baseheight = 400, 
-        destination ="F:\\ec-test\\junk\\2011_April.jpg" )
+    convert_pdf_page(sourcePdf = "F:\\test\\1981_APRIL.pdf", 
+        baseWidth = 400, 
+        quality = 60,
+        destination ="F:\\test\\1981_APRIL.jpg" )
 
 if __name__ == '__main__':
     main()
