@@ -35,16 +35,17 @@ class FileInfo:
 # #######################################################
 
 
-def get_asset_files(asset_directory, extensions_to_ignore):
+def get_asset_files(asset_directories, extensions_to_ignore):
     file_list = {}
-    for root, sub, files in os.walk(asset_directory):
-        for a_file in files:
-            (base_file_name, ext) = os.path.splitext(a_file)
-            if ext.lower().strip() not in extensions_to_ignore:
-                if base_file_name in file_list:
-                    file_list[base_file_name].append(FileInfo(base_file_name, ext, root))
-                else:
-                    file_list[base_file_name] = [FileInfo(base_file_name, ext, root)]
+    for dir in asset_directories:
+        for root, sub, files in os.walk(dir):
+            for a_file in files:
+                (base_file_name, ext) = os.path.splitext(a_file)
+                if ext.lower().strip() not in extensions_to_ignore:
+                    if base_file_name in file_list:
+                        file_list[base_file_name].append(FileInfo(base_file_name, ext, root))
+                    else:
+                        file_list[base_file_name] = [FileInfo(base_file_name, ext, root)]
     return file_list
 
 
@@ -109,15 +110,18 @@ def main():
     xml_files = get_files(xml_directory, xml_extensions)
 
     # base directory of files to import
-    base_directory = input("Please enter directory where files are located: ")
-    if not os.path.isdir(base_directory):
-        print("Directory " + base_directory + " does not exist or is not a directory")
-        sys.exit()
-    else:
-        print("Directory found " + base_directory)
+    directories = input("Please enter directories semicolon separated where asset files are located: ")
+    my_directories = [dir.strip() for dir in  directories.split(';')]
+
+    for dir in my_directories:
+        if not os.path.isdir(dir):
+            print("Directory " + dir + " does not exist or is not a directory")
+            sys.exit()
+        else:
+            print("Directory found " + dir)
 
     print("Will ignore extensions: " + str(my_extensions))
-    all_files = get_asset_files(base_directory, my_extensions)
+    all_files = get_asset_files(my_directories, my_extensions)
     print("num file names " + str(len(all_files)))
 
     create_csv(get_rows(all_files, xml_files))
