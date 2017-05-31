@@ -10,16 +10,13 @@ logger1 = logging.getLogger('1')
 logger1.addHandler(logging.FileHandler("logs/aids_export_general_" + dateTimeInfo + ".log"))
 logger1.setLevel(logging.INFO)
 
-logger1 = logging.getLogger('2')
-logger1.addHandler(logging.FileHandler("logs/aids_export_no_xml_file_" + dateTimeInfo + ".log"))
-logger1.setLevel(logging.INFO)
-
-logger2 = logging.getLogger('3')
-logger2.addHandler(logging.FileHandler("logs/no_asset_file_" + dateTimeInfo + ".log"))
+logger2 = logging.getLogger('2')
+logger2.addHandler(logging.FileHandler("logs/error_log_" + dateTimeInfo + ".log"))
 logger2.setLevel(logging.INFO)
 
-logger3 = logging.getLogger('4')
-logger3.addHandler(logging.FileHandler("logs/no_asset_file_found_" + dateTimeInfo + ".log"))
+
+logger3 = logging.getLogger('3')
+logger3.addHandler(logging.FileHandler("logs/aids_export_csv_" + dateTimeInfo + ".log"))
 logger3.setLevel(logging.INFO)
 
 
@@ -37,7 +34,7 @@ class FileInfo:
         return os.path.join(self.path, (self.name + self.extension))
 
     def to_string(self):
-        return "name = " + self.name + " exension = " + self.extension + " path = " + self.path + " size = " + str(
+        return "name = " + self.name + " extension = " + self.extension + " path = " + self.path + " size = " + str(
             self.size)
 
     def to_csv(self):
@@ -55,12 +52,12 @@ def get_asset_files(asset_directory, extensions, xml_files):
             file_size = os.path.getsize(os.path.join(root, a_file))
             info = FileInfo(base_file_name, ext, root, file_size)
             if ext.lower() in extensions:
+                # only add asset if xml file exists
                 if base_file_name in xml_files:
                     xml_files[base_file_name].asset = info
-                else:
-                    logger2.info(info.to_csv())  # file does not exist in xml file set
             else:
-                logger3.info(info.to_csv())  # file does not have correct extension
+                logger2.info("file found but not correct extension for asset " + base_file_name)
+                # file does not have correct extension
 
 
 # #######################################################
@@ -88,11 +85,13 @@ def process_files(offset, max_files_to_process, valid_extensions, asset_director
     for key, file_info in xml_file_dictionary.items():
         total = total + 1
         if file_info.asset is None:
-            logger2.info((file_info.getFullPath()))  # no asset file foound
+            logger2.info("no asset found for " + file_info.name)  # no asset file found
             asset_missing_counter = asset_missing_counter + 1
         else:
             xml_with_asset.append(file_info)  # add the asset to list
             processed = processed + 1
+
+
     print(
         "processed = " + str(processed) + " assetMissingCounter = " + str(asset_missing_counter) + " total = " + str(
             total))
@@ -118,7 +117,7 @@ def process_files(offset, max_files_to_process, valid_extensions, asset_director
 
     for my_data in subset:
         print("file " + my_data.to_csv())
-        logger1.info(my_data.to_csv())
+        logger3.info(my_data.to_csv())
 
     print("processed a total of " + len(subset))
 
