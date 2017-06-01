@@ -2,6 +2,7 @@ import os
 import logging
 import datetime
 import sys
+import shutil
 
 # logging info
 dateTimeInfo = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -10,14 +11,10 @@ logger1 = logging.getLogger('1')
 logger1.addHandler(logging.FileHandler("logs/aids_export_general_" + dateTimeInfo + ".log"))
 logger1.setLevel(logging.INFO)
 
-logger2 = logging.getLogger('2')
-logger2.addHandler(logging.FileHandler("logs/error_log_" + dateTimeInfo + ".log"))
+
+logger2 = logging.getLogger('3')
+logger2.addHandler(logging.FileHandler("logs/aids_export_csv_" + dateTimeInfo + ".csv"))
 logger2.setLevel(logging.INFO)
-
-
-logger3 = logging.getLogger('3')
-logger3.addHandler(logging.FileHandler("logs/aids_export_csv_" + dateTimeInfo + ".log"))
-logger3.setLevel(logging.INFO)
 
 
 class FileInfo:
@@ -45,19 +42,12 @@ class FileInfo:
 # get a dictionary of asset files - this skips any file that
 # does not have an extension set by the user
 # #######################################################
-def get_asset_files(asset_directory, extensions, xml_files):
-    for root, sub, files in os.walk(asset_directory):
+def get_files(dictionary, directory, extensions):
+    for root, sub, files in os.walk(directory):
         for a_file in files:
             (base_file_name, ext) = os.path.splitext(a_file)
-            file_size = os.path.getsize(os.path.join(root, a_file))
-            info = FileInfo(base_file_name, ext, root, file_size)
             if ext.lower() in extensions:
-                # only add asset if xml file exists
-                if base_file_name in xml_files:
-                    xml_files[base_file_name].asset = info
-            else:
-                logger2.info("file found but not correct extension for asset " + base_file_name)
-                # file does not have correct extension
+                dictionary[base_file_name] = os.path.join(root, (base_file_name + ext))
 
 
 # #######################################################
@@ -70,75 +60,87 @@ def get_asset_files(asset_directory, extensions, xml_files):
 # xmlFileDictionary: dictionary of xml files - base file
 #                    name should match the base asset file name
 # #######################################################
-def process_files(offset, max_files_to_process, valid_extensions, asset_directory_set, xml_file_dictionary):
-    if not offset:
-        offset = 0
-
-    for directory in asset_directory_set:
-        get_asset_files(directory, valid_extensions, xml_file_dictionary)
-
+def process_files(offset, max_files_to_process, xml_file_dictionary, asset_file_dictionary, dest_directory):
     processed = 0
     asset_missing_counter = 0
     total = 0
 
-    xml_with_asset = []
-    for key, file_info in xml_file_dictionary.items():
-        total = total + 1
-        if file_info.asset is None:
-            logger2.info("no asset found for " + file_info.name)  # no asset file found
-            asset_missing_counter = asset_missing_counter + 1
-        else:
-            xml_with_asset.append(file_info)  # add the asset to list
-            processed = processed + 1
+    num_items = len(xml_file_dictionary)
 
+    if not max_files_to_process:
+        max_files_to_process = num_items
+    else:
+        max_files_to_process = int(max_files_to_process)
 
-    print(
-        "processed = " + str(processed) + " assetMissingCounter = " + str(asset_missing_counter) + " total = " + str(
-            total))
-    logger1.info(
-        "processed = " + str(processed) + " assetMissingCounter = " + str(asset_missing_counter) + " total = " + str(
-            total))
+    print("max files to process = " + str(max_files_to_process))
+    logger1.info("max files to process = " + str(max_files_to_process))
 
-    num_items = len(xml_with_asset)
     if num_items > 0:
-        print("total items found with asset " + num_items)
+        print("total xml files " + str(num_items))
+        logger1.info("total xml files " + str(num_items))
 
-        # sort the list
-        sorted_with_asset = sorted(xml_with_asset, key=lambda data: data.asset.size)
+        # sort the keys
+        sorted_keys = sorted(xml_file_dictionary)
 
         end = offset + max_files_to_process
         if end > num_items:
             end = len(num_items)
 
     print("processing " + str(offset) + " to " + str(end))
-    logger1.info("processing " + str(offset) + " to " + str(end))
+    logger1.info("processing (inclusive)" + str(offset) + " to (exclusive) " + str(end))
+    subset = sorted_keys[offset: end]
 
-    subset = sorted_with_asset[offset: end]
+    for key in subset:
+        print("processing key " + key)
+        logger1.info("processing key " + key)
+        asset = asset_file_dictionary.get(key)
+        xml = xml_file_dictionary.get(key)
 
-    for my_data in subset:
-        print("file " + my_data.to_csv())
-        logger3.info(my_data.to_csv())
+        if xml is not None and asset is not None:
+            print("found asset file " + asset)
+            logger1.info("found asset file " + asset)
+            dest_xml_file = os.path.join(dest_directory, key + ".xml")
+            (base_file_name, ext) = os.path.splitext(asset)
+            dest_asset_file = os.path.join(dest_directory, key + ext)
+            print("dest xml file = " + dest_xml_file + "dest asset file " + dest_asset_file)
+            logger1.info("dest xml file = " + dest_xml_file + "dest asset file " + dest_asset_file)
+            logger2.info(key + ", " + xml + ", " + asset)
+            shutil.copy(xml, dest_xml_file)
+            shutil.copy(asset, dest_asset_file)
+            processed = processed + 1
+        else:
+            if asset is None and xml is None:
+                logger2.info(key + ",,")
+            elif asset is None:
+                logger2.info(key + ", " + xml + ",")
+                print("asset file NOT found for key " + key)
+                logger1.info("ERROR: asset file NOT found for key " + key)
+            elif xml is None:
+                logger2.info(key + ", , " + asset)
+                print("xml file NOT found for key " + key)
+                logger1.info("ERROR: asset file NOT found for key " + key)
 
-    print("processed a total of " + len(subset))
+    print(
+        "processed = " + str(processed) + " asset_missing_counter = " + str(asset_missing_counter) + " total = " + str(
+            total))
+    logger1.info(
+        "processed = " + str(processed) + " asset_missing_counter = " + str(asset_missing_counter) + " total = " + str(
+            total))
 
 
 # #######################################################
-# get a dictionary of xml files - this skips any file that
-# does not have an .xml file extension
+# get a dictionary of asset files - this skips any file that
+# does not have an extension set by the user
 # #######################################################
-def get_xml_files(xml_directory):
-    file_list = {}
-    for root, sub, files in os.walk(xml_directory):
-        for a_file in files:
-            (base_file_name, ext) = os.path.splitext(a_file)
-            # we only want xml files
-            if ext == ".xml":
-                info = FileInfo(base_file_name, ext, root, 0)
-                file_list[base_file_name] = info
-            else:
-                print("skipping file " + a_file)
-                logger1.info()
-    return file_list
+def get_all_asset_files(asset_directory_set, extensions):
+    asset_dictionary = {}
+
+    for directory in asset_directory_set:
+        print("processing assets in " + directory)
+        logger1.info("processing assets in " + directory)
+        get_files(asset_dictionary, directory, extensions)
+
+    return asset_dictionary
 
 
 # ########################################
@@ -147,18 +149,40 @@ def get_xml_files(xml_directory):
 def main():
     max_files_to_process = input("Please enter maximum number of files to process enter to process all: ")
     offset = input("Please enter the offset position (inclusive) press enter to start from the beginning: ")
+
+    if not offset:
+        offset = 0
+    else:
+        offset = int(offset)
+
     valid_extensions = input("Please enter a comma separated list of extensions e.g. tif, tiff: ")
+
+    # output directory for processing
+    output_directory = input("Please enter output directory: ")
+    if not os.path.isdir(output_directory):
+        print("Directory " + output_directory + " does not exist or is not a directory")
+        logger1.info("ERROR: Directory " + output_directory + " does not exist or is not a directory")
+        sys.exit()
+    else:
+        print("Directory found " + output_directory)
+
+    num_files_in_output = len([name for name in os.listdir(output_directory) if os.path.isfile(os.path.join(output_directory, name))])
+    if num_files_in_output > 0:
+        print("output directory " + output_directory + " is not empty has " + str(num_files_in_output) + " files")
+        logger1.info("ERROR: output directory " + output_directory + " is not empty has " + str(num_files_in_output) + " files")
+        sys.exit()
 
     xml_directory = input("Please enter the top directory where all the xml files exist: ")
     if not os.path.isdir(xml_directory):
         print("Directory " + xml_directory + " does not exist or is not a directory")
-        logger1.info("Directory " + xml_directory + " does not exist or is not a directory")
+        logger1.info("ERROR: Directory " + xml_directory + " does not exist or is not a directory")
         sys.exit()
     else:
         print("Directory found " + xml_directory)
         logger1.info("Directory found " + xml_directory)
 
-    xml_file_dictionary = get_xml_files(xml_directory)
+    xml_file_dictionary = {}
+    get_files(xml_file_dictionary, xml_directory, [".xml"])
 
     num_xml_files = len(xml_file_dictionary)
     print("found " + str(num_xml_files) + " xml files")
@@ -168,6 +192,9 @@ def main():
         print("ERROR: no xml files found ")
         logger1.info("ERROR: no xml files found")
         sys.exit()
+
+    for key, file in xml_file_dictionary.items():
+        print("found key " + key + " file " + file)
 
     asset_directories = []
 
@@ -181,8 +208,8 @@ def main():
             logger1.info("Directory " + asset_directory + " does not exist or is not a directory")
             sys.exit()
         else:
-            print("Directory found " + asset_directory)
-            logger1.info("Directory found " + asset_directory)
+            print("Asset directory found " + asset_directory)
+            logger1.info("Asset directory found " + asset_directory)
             asset_directories.append(asset_directory)
 
     # convert to set to guarantee uniqueness
@@ -197,15 +224,19 @@ def main():
     ext_length = len(my_extensions)
     if ext_length == 0:
         print("One or more extensions must be listed")
-        logger1.info("One or more extensions must be listed")
+        logger1.info("ERROR: One or more extensions must be listed")
         sys.exit()
 
     for index in range(0, ext_length):
-        print("altering value " + my_extensions[index] + " at index " + str(index))
-        logger1.info("altering value " + my_extensions[index] + " at index " + str(index))
+        print("adding extension " + my_extensions[index])
+        logger1.info("adding extension " + my_extensions[index])
         my_extensions[index] = "." + my_extensions[index].strip().lower()
 
-    process_files(offset, max_files_to_process, my_extensions, asset_directory_set, xml_file_dictionary)
+    assets_dictionary = get_all_asset_files(asset_directory_set, my_extensions)
+    for key, file in assets_dictionary.items():
+        print("found key " + key + " file " + file)
+
+    process_files(offset, max_files_to_process, xml_file_dictionary, assets_dictionary, output_directory)
 
 if __name__ == '__main__':
     main()
