@@ -17,27 +17,6 @@ logger2.addHandler(logging.FileHandler("logs/aids_export_csv_" + dateTimeInfo + 
 logger2.setLevel(logging.INFO)
 
 
-class FileInfo:
-    """Holds basic file information """
-
-    def __init__(self, name, extension, path, size):
-        self.name = name
-        self.extension = extension
-        self.path = path
-        self.size = size
-        self.asset = None
-
-    def get_full_path(self):
-        return os.path.join(self.path, (self.name + self.extension))
-
-    def to_string(self):
-        return "name = " + self.name + " extension = " + self.extension + " path = " + self.path + " size = " + str(
-            self.size)
-
-    def to_csv(self):
-        return self.name + ", " + self.get_full_path() + ", " + str(self.size)
-
-
 # #######################################################
 # get a dictionary of asset files - this skips any file that
 # does not have an extension set by the user

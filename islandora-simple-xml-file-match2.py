@@ -44,8 +44,8 @@ class FileInfo:
 		
 
 # #######################################################
-# get a dictionary of xml files - this skips any file that
-# does not have an .xml file extension
+# get a dictionary of asset files - this skips any file that
+# does not have an extension set by the user
 #
 # 
 #

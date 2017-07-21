@@ -566,11 +566,15 @@ class Identifier:
     def __init__(self):
         self.type = ''
         self.value = ''
+        self.display_label = ''
 
     def to_mods_element(self, parent_element):
         top_level = ET.SubElement(parent_element, 'identifier')
         if self.type:
             top_level.set('type', self.type.strip())
+
+        if self.display_label:
+            top_level.set('displayLabel', self.display_label)
 
         top_level.text = self.value.strip()
         return top_level

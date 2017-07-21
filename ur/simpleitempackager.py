@@ -99,7 +99,7 @@ def main():
         counter = 1
 
         for row in file_reader:
-            print("processing row " + str(counter) )
+            print("processing row " + str(counter))
             create_file_structure(row, base_directory, output_directory, extension)
             counter += 1
 

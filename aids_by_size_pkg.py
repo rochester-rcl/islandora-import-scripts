@@ -28,9 +28,9 @@ def getFileList(itemDirectory, extension):
             for item in files:
                 if (re.match(fileMatch, item)):
                     print("adding item " + item)
-                    myFileSize = os.path.getsize(os.path.join(root,item)) 
+                    myFileSize = os.path.getsize(os.path.join(root,item))
                     fileList[item] = myFileSize
-                else: 
+                else:
                     logging.info("Skipping file " + item + " name pattern did not match")
     itemIdList = {}
     for fileNameKey, fileSize in fileList.items():
@@ -40,8 +40,8 @@ def getFileList(itemDirectory, extension):
             itemIdList[fileNameKey.split('.')[0]] = fileSize #get the id only no extension
         else:
              logging.info("Could not find file name key " + fileNameKey +"  with extension " +  extension + " name pattern did not match")
-        
-    
+
+
     # sorted smallest to largest
     sortedDict =  OrderedDict(sorted(itemIdList.items(), key=itemgetter(1)))
     return sortedDict;
@@ -60,12 +60,12 @@ def findMatchingItems(idStr, itemDirectoryStr):
 #if the data cannot be found it is logged
 def getFileSet(idList):
     print("create zipable file set called")
-    filesToAdd = []    
+    filesToAdd = []
 
     for id in idList:
         myFiles = findMatchingItems(id, itemDirectory)
         print("adding id " + id + " to current set" )
-            
+
         if len(myFiles) == 1:
             fileName = id + ".xml"
             xmlFile = os.path.join(xmlOutputDir, fileName)
@@ -75,17 +75,17 @@ def getFileSet(idList):
                 fileName = id + ".xml"
             else:
                  logging.info("skipping file  " +  id + " no xml file found")
-            
+
         else:
             logging.info("Bad files had len of " + str(len(myFiles))  + " for id " +  id)
 
     print("done prcessing zip set")
-    return filesToAdd 
+    return filesToAdd
 
 #zip up the list of files into a zip archive
 def createZipSet(files, zipFileName):
     print("create zip set called " + zipFileName)
-    
+
     with zipfile.ZipFile(zipFileName, 'w', allowZip64=True) as myzip:
         for aFile in files:
             print("adding file " + os.path.basename(aFile))
@@ -98,7 +98,7 @@ def createFolderSet(files, folderName):
 def processSets(offset, maxFilesToProcess, zipOutput):
     fileIdList = getFileList(itemDirectory, "tif")
     setSize = len(fileIdList)
-    isZipOutput = false
+    isZipOutput = False
 
     if(not maxFilesToProcess):
         maxFilesToProcess = setSize + 1
@@ -107,7 +107,7 @@ def processSets(offset, maxFilesToProcess, zipOutput):
         offset = 0
 
     if(zipOutput.lower() == "yes"):
-        isZipOutput = true
+        isZipOutput = True
 
     offset = int(offset)
 
@@ -136,13 +136,13 @@ def processSets(offset, maxFilesToProcess, zipOutput):
 
                 if( isZipOutput ):
                     createZipSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip")
-                    print("creating zip file set " + zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip size = " + str(totalBytes)
+                    print("creating zip file set " + zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip size = " + str(totalBytes))
                 else:
                     createFolderSet(zipFileSet, zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter))
-                    print("creating folder file set " + zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip size = " + str(totalBytes)
-                
+                    print("creating folder file set " + zipOutDir +"aep_" + str(startCount) + "_to_" + str(counter) + ".zip size = " + str(totalBytes))
+
                 totalBytes = fileSize
-                fileSet = [] 
+                fileSet = []
                 fileSet.append(fileName)
                 counter = counter + 1
                 startCount = counter
