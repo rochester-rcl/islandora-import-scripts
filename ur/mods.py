@@ -489,9 +489,12 @@ class PhysicalLocation:
 
     def __init__(self):
         self.value = ''
+        self.type = ''
 
     def to_mods_element(self, parent_element):
         top_level = ET.SubElement(parent_element, 'physicalLocation')
+        if self.type:
+            top_level.set('type', self.type.strip())
         top_level.text = self.value.strip()
         return top_level
 
@@ -553,9 +556,22 @@ class AccessCondition:
 
     def __init__(self):
         self.value = ''
+        self.type = ''
+        self.display_label = ''
+        self.xlink = ''
 
     def to_mods_element(self, parent_element):
         top_level = ET.SubElement(parent_element, 'accessCondition')
+
+        if self.type:
+            top_level.set('type', self.type.strip())
+
+        if self.display_label:
+            top_level.set('displayLabel', self.display_label)
+
+        if self.xlink:
+            top_level.set('xlink:href', self.xlink)
+
         top_level.text = self.value.strip()
         return top_level
 
@@ -572,6 +588,23 @@ class Identifier:
         top_level = ET.SubElement(parent_element, 'identifier')
         if self.type:
             top_level.set('type', self.type.strip())
+
+        if self.display_label:
+            top_level.set('displayLabel', self.display_label)
+
+        top_level.text = self.value.strip()
+        return top_level
+
+
+class Url:
+    """Holds url information"""
+
+    def __init__(self):
+        self.value = ''
+        self.display_label = ''
+
+    def to_mods_element(self, parent_element):
+        top_level = ET.SubElement(parent_element, 'url')
 
         if self.display_label:
             top_level.set('displayLabel', self.display_label)

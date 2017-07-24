@@ -17,7 +17,7 @@ class FileInfo:
 
     def to_string(self):
         return ("name = " + self.name + " extension = " + self.extension + " path = " +
-                self.path + " size = " + str(self.size))
+                self.path)
 
     def to_csv(self):
         return self.name + ", " + self.get_full_path()
