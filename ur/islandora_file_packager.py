@@ -63,7 +63,7 @@ def process_files(offset, max_files_to_process, xml_file_dictionary, asset_file_
 
         end = offset + max_files_to_process
         if end > num_items:
-            end = len(num_items)
+            end = num_items
 
     print("processing " + str(offset) + " to " + str(end))
     logger1.info("processing (inclusive)" + str(offset) + " to (exclusive) " + str(end))
