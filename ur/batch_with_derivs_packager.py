@@ -4,9 +4,7 @@ import csvtoxml as xmlrow
 import os
 import csv
 import sys
-import xml.etree.ElementTree as ET
 import shutil
-
 
 
 # ##################################
@@ -57,7 +55,6 @@ def main():
     else:
         print("found file ")
 
-
     # base directory of files to import
     base_directory = input("Please enter directory of files to import: ")
     if not os.path.isdir(base_directory):
@@ -65,7 +62,6 @@ def main():
         sys.exit()
     else:
         print("Directory found " + base_directory)
-
 
     # output directory for processing
     output_directory = input("Please enter output directory: ")
@@ -86,6 +82,7 @@ def main():
             else:
                 print("No file name found for row " + str(counter))
             counter += 1
+
 
 if __name__ == '__main__':
     main()

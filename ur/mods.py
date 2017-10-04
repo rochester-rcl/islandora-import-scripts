@@ -546,7 +546,7 @@ class EnumerationAndChronology:
         top_level.text = self.value.strip()
 
         if self.unit_type:
-            top_level.set('qualifier', str(self.unit_type).strip())
+            top_level.set('unitType', str(self.unit_type).strip())
 
         return top_level
 

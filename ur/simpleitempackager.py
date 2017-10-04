@@ -2,7 +2,6 @@ import csvtoxml as xmlrow
 import os
 import csv
 import sys
-import xml.etree.ElementTree as ET
 import shutil
 
 
@@ -102,6 +101,7 @@ def main():
             print("processing row " + str(counter))
             create_file_structure(row, base_directory, output_directory, extension)
             counter += 1
+
 
 if __name__ == '__main__':
     main()
