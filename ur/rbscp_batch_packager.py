@@ -6,6 +6,7 @@ import logging
 import datetime
 import csvtoxml as xmlrow
 import shutil
+import subprocess
 
 # logging info
 dateTimeInfo = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -27,7 +28,7 @@ def get_folder_files(path):
     return file_list
 
 
-def create_ingestion_package(page_counter, output_directory, file_list, row):
+def create_ingestion_package(page_counter, output_directory, file_list, row, params_for_to_pdf):
     print("create ingest package")
     # page level output
     dir_format = "{0:04d}"
@@ -54,6 +55,7 @@ def create_ingestion_package(page_counter, output_directory, file_list, row):
                 dest_file = os.path.join(page_dir, "OBJ" + file_extension)
                 print("dest file = " + dest_file)
                 shutil.copy(file_list[key], dest_file)
+                params_for_to_pdf.append(dest_file + "[0]")
             if file_extension.lower() == ".jp2":
                 dest_file = os.path.join(page_dir, "JP2" + file_extension)
                 print("dest file = " + dest_file)
@@ -89,12 +91,23 @@ def package_files(object_counter,
     print("MODS file " + mods_file)
     xmlrow.create_xml_file(row, mods_file)
     page_counter = 1
+    params_for_to_pdf = ["convert"]
     for file_name in range(start, end + 1):
         folder_path = base_directory_path + "/" + base_folder_name + str(file_name).zfill(3)
         print("processing " + folder_path)
         file_list = get_folder_files(folder_path)
-        create_ingestion_package(page_counter, object_dir, file_list, row)
+        create_ingestion_package(page_counter, object_dir, file_list, row, params_for_to_pdf)
         page_counter = page_counter + 1
+
+    pdf_file = os.path.join(object_dir, "PDF.pdf")
+    params_for_to_pdf.append(pdf_file)
+    for val in params_for_to_pdf:
+        print(val)
+    p1 = subprocess.Popen(params_for_to_pdf)
+    print(p1.communicate())
+
+
+
 
 
 # parses files with the given format
