@@ -312,12 +312,15 @@ class Name:
 
     def __init__(self):
         self.type = ''
+        self.authority = ''
 
     def to_mods_element(self, parent_element):
         top_level = ET.SubElement(parent_element, 'name')
 
         if self.type:
             top_level.set('type', self.type.strip())
+        if self.authority:
+            top_level.set('authority', self.authority.strip())
 
         return top_level
 
