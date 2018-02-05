@@ -28,7 +28,7 @@ def get_folder_files(path):
     return file_list
 
 
-def create_ingestion_package(page_counter, output_directory, file_list, row, params_for_to_pdf):
+def create_ingestion_package(page_counter, output_directory, file_list, row, object_dir, generate_thumb, pdf_tif_files):
     print("create ingest package")
     # page level output
     dir_format = "{0:04d}"
@@ -45,17 +45,22 @@ def create_ingestion_package(page_counter, output_directory, file_list, row, par
         print("file name = " + file_name + " extension = " + file_extension)
 
         if file_name.endswith("_t"):
-            print("is thumbnail")
-            dest_file = os.path.join(page_dir, "TN" + file_extension)
-            print("dest file = " + dest_file)
-            shutil.copy(file_list[key], dest_file)
+            if not generate_thumb:
+                print("is thumbnail")
+                dest_file = os.path.join(page_dir, "TN" + file_extension)
+                print("dest file = " + dest_file)
+                shutil.copy(file_list[key], dest_file)
+            else:
+                print("thumbnail must be generated")
+        elif file_name.endswith("_PDF"):
+                print("is tiff file for pdf")
+                pdf_tif_files.append(file_list[key])
         else:
             print("not thumbnail")
             if file_extension.lower() == ".tif" or file_extension.lower() == ".tiff":
                 dest_file = os.path.join(page_dir, "OBJ" + file_extension)
                 print("dest file = " + dest_file)
                 shutil.copy(file_list[key], dest_file)
-                params_for_to_pdf.append(dest_file + "[0]")
             if file_extension.lower() == ".jp2":
                 dest_file = os.path.join(page_dir, "JP2" + file_extension)
                 print("dest file = " + dest_file)
@@ -63,9 +68,76 @@ def create_ingestion_package(page_counter, output_directory, file_list, row, par
             if file_extension.lower() == ".jpg":
                 dest_file = os.path.join(page_dir, "JPG" + file_extension)
                 print("dest file = " + dest_file)
-                shutil.copy(file_list[key], dest_file)
+                create_medium_jpg(file_list[key], dest_file)
+                if generate_thumb:
+                    dest_thumbnail = os.path.join(page_dir, "TN.jpg")
+                else:
+                    print("thumbnail not generated")
             else:
                 print("")
+
+def create_medium_jpg(source_file, dest_file):
+    print("Creating medium JPG")
+    params_for_to_jpg = ["convert"]
+    params_for_to_jpg.append(source_file)
+    params_for_to_jpg.append("-resize")
+    params_for_to_jpg.append("600 x 800")
+    params_for_to_jpg.append("-quality")
+    params_for_to_jpg.append("75")
+    params_for_to_jpg.append(dest_file)
+    p1 = subprocess.Popen(params_for_to_jpg)
+    print(p1.communicate())
+
+def create_tn_jpg(source_file, dest_file):
+    print("Creating Thumbnail")
+    params_for_to_jpg = ["convert"]
+    params_for_to_jpg.append(source_file)
+    params_for_to_jpg.append("-resize")
+    params_for_to_jpg.append("200 x 200")
+    params_for_to_jpg.append("-quality")
+    params_for_to_jpg.append("75")
+    params_for_to_jpg.append(dest_file)
+    p1 = subprocess.Popen(params_for_to_jpg)
+    print(p1.communicate())
+
+
+def create_pdf(object_dir, pdf_tif_files):
+
+    params_for_to_pdf = ["convert"]
+    params_for_to_pdf.append("-density")
+    params_for_to_pdf.append("72")
+    params_for_to_pdf.append("-compress")
+    params_for_to_pdf.append("LZW")
+    pdf_temp_file = os.path.join(object_dir, "temp_PDF.pdf")
+
+    for pdf_tif_file in pdf_tif_files:
+        params_for_to_pdf.append(pdf_tif_file)
+    
+    pdf_final_file = os.path.join(object_dir, "PDF.pdf")
+    params_for_to_pdf.append(pdf_temp_file)
+    for val in params_for_to_pdf:
+        print(val)
+    p1 = subprocess.Popen(params_for_to_pdf)
+    print(p1.communicate())
+
+    #use gost script to make pdf smaller
+    params_for_gs = ["gs"]
+    params_for_gs.append("-sDEVICE=pdfwrite")
+    params_for_gs.append("-dCompatibilityLevel=1.4")
+    params_for_gs.append("-dPDFSETTINGS=/printer")
+    params_for_gs.append("-dNOPAUSE")
+    params_for_gs.append("-dQUIET")
+    params_for_gs.append("-dBATCH")
+    params_for_gs.append("-r300")
+    params_for_gs.append("-sOutputFile=" + pdf_final_file)
+    params_for_gs.append(pdf_temp_file)
+
+    for val in params_for_gs:
+        print(val)
+
+    p2 = subprocess.Popen(params_for_gs)
+    print(p2.communicate())
+    os.remove(pdf_temp_file)
 
 
 def package_files(object_counter,
@@ -74,7 +146,8 @@ def package_files(object_counter,
                   start_range,
                   end_range,
                   output_directory,
-                  row):
+                  row,
+                  generate_thumb):
     print(base_folder_name)
     print(start_range)
     print(end_range)
@@ -91,29 +164,20 @@ def package_files(object_counter,
     print("MODS file " + mods_file)
     xmlrow.create_xml_file(row, mods_file)
     page_counter = 1
-    params_for_to_pdf = ["convert"]
+    pdf_tif_files = []
     for file_name in range(start, end + 1):
         folder_path = base_directory_path + "/" + base_folder_name + str(file_name).zfill(3)
         print("processing " + folder_path)
         file_list = get_folder_files(folder_path)
-        create_ingestion_package(page_counter, object_dir, file_list, row, params_for_to_pdf)
+        create_ingestion_package(page_counter, object_dir, file_list, row, object_dir, generate_thumb, pdf_tif_files)
         page_counter = page_counter + 1
 
-    pdf_file = os.path.join(object_dir, "PDF.pdf")
-    params_for_to_pdf.append(pdf_file)
-    for val in params_for_to_pdf:
-        print(val)
-    p1 = subprocess.Popen(params_for_to_pdf)
-    print(p1.communicate())
-
-
-
-
+    create_pdf(object_dir, pdf_tif_files)
 
 # parses files with the given format
 # [BASE_NAME]-[range]
 # example: D_129_Folder_1-004-006
-def parse_file_info(object_counter, base_directory_path, folder_name, output_directory, row):
+def parse_file_info(object_counter, base_directory_path, folder_name, output_directory, row, generate_thumb):
     print(folder_name)
     print(folder_name.find("-"))
     position = folder_name.find("-")
@@ -131,7 +195,8 @@ def parse_file_info(object_counter, base_directory_path, folder_name, output_dir
                           start_range=number_range[0],
                           end_range=number_range[1],
                           output_directory=output_directory,
-                          row=row)
+                          row=row,
+                          generate_thumb=generate_thumb)
         elif len(number_range) == 1:
             package_files(object_counter=object_counter,
                           base_directory_path=base_directory_path,
@@ -139,14 +204,15 @@ def parse_file_info(object_counter, base_directory_path, folder_name, output_dir
                           start_range=number_range[0],
                           end_range=number_range[0],
                           output_directory=output_directory,
-                          row=row)
+                          row=row,
+                          generate_thumb=generate_thumb)
         else:
             print("Range incorrect for " + folder_name + " row " + object_counter)
     else:
         print("File format not correct for " + folder_name + " row " + object_counter)
 
 
-def process_csv(csv_file, base_directory, output_directory):
+def process_csv(csv_file, base_directory, output_directory, generate_thumb):
     print("processing csv " + csv_file)
     # open the csv and start iterating through the rows
     with open(csv_file, 'r') as csv_file:
@@ -155,7 +221,7 @@ def process_csv(csv_file, base_directory, output_directory):
 
         for row in file_reader:
             # xmlrow.print_row(counter, row, 37)
-            parse_file_info(object_counter, base_directory, row[33], output_directory, row)
+            parse_file_info(object_counter, base_directory, row[33], output_directory, row, generate_thumb)
             object_counter += 1
 
 
@@ -184,7 +250,13 @@ def main():
     else:
         print("Directory found " + output_directory)
 
-    process_csv(csv_file, base_directory, output_directory)
+    generate_thumb = input("Generate thumbnail file (y/n) default is 'n': ")
+    if generate_thumb  and generate_thumb.lower() == 'y':
+        generate_thumb = True
+    else:
+        generate_thumb = False
+
+    process_csv(csv_file, base_directory, output_directory, generate_thumb)
 
 
 if __name__ == '__main__':
