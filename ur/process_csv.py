@@ -37,7 +37,7 @@ def print_csv_info(a_file):
         for row in file_reader:
             print("************* " + str(counter) + " *********************")
             counter += 1
-            for x in range(0, 63):
+            for x in range(0, 62):
                 print("row " + str(x) + " = " + row[x])
             print("*************  DONE - " + str(counter) + " *********************")
             print("")
@@ -54,7 +54,7 @@ def main():
         sys.exit()
     else:
         print("found file ")
-        print_csv_info(a_file)
+        process_csv(a_file)
 
 if __name__ == '__main__':
     main()
