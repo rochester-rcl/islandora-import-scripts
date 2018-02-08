@@ -366,6 +366,19 @@ def build_xml(row, current_page=None):
         access_condition.value = row[36].strip()
         access_condition.to_mods_element(root)
 
+    if row[37]:
+        finding_aid_element = mods.Location().to_mods_element(root)
+        finding_aid_url = mods.Url()
+        finding_aid_url.displayLabel = "Finding aid to collection"
+        finding_aid_url.value = row[37].strip()
+        finding_aid_url.to_mods_element(finding_aid_element)
+
+    if row[38]:
+        preferred_citation = mods.Note()
+        preferred_citation.type = "preferred citation"
+        preferred_citation.value = row[38].strip()
+        preferred_citation.to_mods_element(root)
+
     return root
 
 
