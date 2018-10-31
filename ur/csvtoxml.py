@@ -56,19 +56,6 @@ def build_xml(row, current_page=None):
                 enumeration_and_chronology.value = row[3].strip()
                 enumeration_and_chronology.to_mods_element(copy_information_element)
 
-    # folder title
-    if row[4]:
-        related_item = mods.RelatedItem()
-        related_item.display_label = 'Folder'
-        related_item_element = related_item.to_mods_element(root)
-
-        folder_title_info = mods.TitleInfo()
-        folder_title_info_element = folder_title_info.to_mods_element(related_item_element)
-        folder_title = mods.Title()
-        folder_title.value = row[4].strip()
-
-        folder_title.to_mods_element(folder_title_info_element)
-
     # object title information
     if row[5]:
         title_info = mods.TitleInfo()
@@ -84,19 +71,25 @@ def build_xml(row, current_page=None):
         title.to_mods_element(title_info_element)
 
     # collection title
-    if row[6]:
+    if row[6] or row[37]:
         host_item = mods.RelatedItem()
         host_item.type = 'host'
         host_item.display_label = 'Collection'
         host_item_element = host_item.to_mods_element(root)
 
-        collection_title_info = mods.TitleInfo()
-        collection_title_info_element = collection_title_info.to_mods_element(host_item_element)
-        collection_title = mods.Title()
-        collection_title.value = row[6].strip()
+        if row[6]:
+            collection_title_info = mods.TitleInfo()
+            collection_title_info_element = collection_title_info.to_mods_element(host_item_element)
+            collection_title = mods.Title()
+            collection_title.value = row[6].strip()
+            collection_title.to_mods_element(collection_title_info_element)
 
-        collection_title.to_mods_element(collection_title_info_element)
-
+        if row[37]:
+            finding_aid_element = mods.Location().to_mods_element(host_item_element)
+            finding_aid_url = mods.Url()
+            finding_aid_url.display_label = "Finding aid to collection"
+            finding_aid_url.value = row[37].strip()
+            finding_aid_url.to_mods_element(finding_aid_element)
     # series title
     if row[7]:
         series_host_item = mods.RelatedItem()
@@ -366,12 +359,6 @@ def build_xml(row, current_page=None):
         access_condition.value = row[36].strip()
         access_condition.to_mods_element(root)
 
-    if row[37]:
-        finding_aid_element = mods.Location().to_mods_element(root)
-        finding_aid_url = mods.Url()
-        finding_aid_url.displayLabel = "Finding aid to collection"
-        finding_aid_url.value = row[37].strip()
-        finding_aid_url.to_mods_element(finding_aid_element)
 
     if row[38]:
         preferred_citation = mods.Note()
