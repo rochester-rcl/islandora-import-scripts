@@ -14,11 +14,11 @@ tur_pub_name = "University Record"
 
 ttnc_file_match = "T_T_N_C_(.*)" 
 ttnc_file_dict = {}
-ttnc_pub_name = ""
+ttnc_pub_name = "Tower Times News Comicle"
 
-ttfn_file_match = "T_T_F_N_(.*)"
-ttfn_file_dict = {}
-ttfn_pub_name = ""
+ttff_file_match = "T_T_F_F_(.*)"
+ttff_file_dict = {}
+ttff_pub_name = ""
 
 tt_file_match = "T_T_(.*)"
 tt_file_dict = {}
@@ -30,19 +30,19 @@ trc_pub_name = "Rochester Campus"
 
 tcw_file_match = "T_C_W_(.*)"
 tcw_file_dict = {}
-tcw_pub_name = ""
+tcw_pub_name = "Cloister Window"
 
 tcsm_file_match = "T_C_S_M_(.*)"
 tcsm_file_dict = {}
-tcsm_pub_name = ""
+tcsm_pub_name = "Campus Scampus Mirror"
 
 tctr_file_match = "T_C_T_R_(.*)"
 tctr_file_dict = {}
-tctr_pub_name = ""
+tctr_pub_name = "Campus The Rumpus"
 
 tct_file_match = "T_C_T_(.*)"
 tct_file_dict = {}
-tct_pub_name = ""
+tct_pub_name = "Campus Times  1943"
 
 ct_file_match = "C_T_(.*)"
 ct_file_dict = {}
@@ -58,19 +58,34 @@ cw_pub_name = "Cloister Window"
 
 tr_file_match = "T_R_(.*)"
 tr_file_dict = {}
-tr_pub_name = ""
+tr_pub_name = "Rumpus"
 
 ts_file_match = "T_S_(.*)"
 ts_file_dict = {}
-ts_pub_name = ""
+ts_pub_name = "Scampus"
 
 to_file_match = "T_O_(.*)"
 to_file_dict = {}
-to_pub_name = ""
+to_pub_name = "Oister"
 
 
 #date matching patterns
 basic_date_match = "(\d+)_(\d+)_(\d+)"
+year_month_match = "(\d+)_(\d+)"
+
+monthDict = {'00': 'Unknown',
+              '01': 'January',
+              '02': 'February',
+              '03': 'March',
+              '04': 'April',
+              '05': 'May',
+              '06': 'June',
+              '07': 'July',
+              '08': 'August',
+              '09': 'September',
+              '10': 'October',
+              '11': 'November',
+              '12': 'December'}
 
 
 # ########################################
@@ -87,13 +102,59 @@ class PdfFileInfo:
         self.day = ''
         self.date = ''
 
+    def getTitle(self):
+        self.parseDate()
+        # Campus Times, January 15, 1955
+        title = self.publication
+        dateTitle = ""
 
-def parseDate(dateStr):
-    matchInfo = re.match(basic_date_match, dateStr)
-    if matchInfo:
-        return  matchInfo.group(2)+ "/" + matchInfo.group(3) + "/" + matchInfo.group(1)
-    else:
-        return dateStr
+        if(self.month):
+            month = monthDict.get(self.month, 'Unknown')
+            dateTitle =  month 
+
+            if(self.day):
+                dateTitle = dateTitle  + " " + str(self.day) + ","
+            
+            if(self.year):
+                dateTitle = dateTitle + " " + str(self.year)
+        elif(self.year):
+            dateTitle = str(self.year)
+        
+        if(dateTitle):
+            title = title + " (" + dateTitle + ")"
+
+        print("Title = " + title)
+        return title
+
+
+    def getIsoDate(self):
+        if (re.match(basic_date_match, self.date)):
+            matchInfo = re.match(basic_date_match, self.date)
+            #YYYY-MM-DD
+            return matchInfo.group(1) + "-" + matchInfo.group(2) + "-" + matchInfo.group(3)
+        elif(re.match(year_month_match, self.date)):
+            matchInfo = re.match(year_month_match, self.date)
+            #YYYY-MM
+            return matchInfo.group(1) + "-" + matchInfo.group(2) 
+        else:
+            return self.date     
+
+    # ########################################
+    # Parse the date information and store it
+    # ########################################
+    def parseDate(self):
+        
+        if (re.match(basic_date_match, self.date)):
+            matchInfo = re.match(basic_date_match, self.date)
+            self.day = matchInfo.group(3)
+            self.month = matchInfo.group(2)
+            self.year =  matchInfo.group(1)
+        elif(re.match(year_month_match, self.date)):
+            matchInfo = re.match(year_month_match, self.date)
+            self.month = matchInfo.group(2)
+            self.year =  matchInfo.group(1)    
+        else:
+            print("match not found for " + self.date)   
        
 # ########################################
 # Get a count of pages in each pdf file
@@ -134,9 +195,8 @@ def getFileList(itemDirectory, extension):
 # ########################################
 def printDict(dict):
     for key, info in dict.items():
-        print(" key " + key + " value = " + info.value + " date = " + info.date)
-        parseDate(info.date)
-
+        print(" key = " + key +  "title = " + info.getTitle() + " value = " + info.value + " date = " + info.date + " parsed = " + info.getIsoDate() )
+       
 
 # ########################################
 # Create csv from dictionary
@@ -146,16 +206,27 @@ def createCsv(dict, csv_file, tiffDirectory):
     rows = []
     for key, info in dict.items():
         #print(" found key " + key + " and value " + value)
-        row = [None] * 5
+        numPages = getPdfPages(info.value)
+        tiffCount = numTiffs(tiffDirectory, key)
+        #number of pages should match number of TIFF files
+        countMatch = (numPages == tiffCount)
+        if(numPages ==  tiffCount):
+            print("num pages "  + str(numPages) + " equals " + str(tiffCount))
+        else:
+            print("num pages "  + str(numPages) + " NOT equals " + str(tiffCount))
+
+        row = [None] * 7
         row[0] = key
-        row[1] = getPdfPages(info.value)
-        row[2] = numTiffs(tiffDirectory, key)
-        row[3] = parseDate(info.date)
-        row[4] = info.value
+        row[1] = info.getTitle()
+        row[2] = numPages
+        row[3] = tiffCount
+        row[4] = countMatch
+        row[5] = info.getIsoDate()
+        row[6] = info.value
         rows.append(row)
     with open(csv_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Name", "Pages", "TIFFS", "Date", "Path"])
+        writer.writerow(["Name", "Title","Pages", "TIFFS", "Count Match", "Date", "Path"])
         writer.writerows(rows)
 
 # ########################################
@@ -237,13 +308,13 @@ def getPdfs(processDirectory):
             ttnc_file_dict[key] = pdfInfo
             #print(matchInfo.group(1))
             #print(" found key " + key + " and value " + str(value))     
-        elif(re.match(ttfn_file_match, key)):
-            matchInfo = re.match(ttfn_file_match, key)
+        elif(re.match(ttff_file_match, key)):
+            matchInfo = re.match(ttff_file_match, key)
             pdfInfo = PdfFileInfo()
-            pdfInfo.publication = ttfn_pub_name
+            pdfInfo.publication = ttff_pub_name
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
-            ttfn_file_dict[key] = pdfInfo
+            ttff_file_dict[key] = pdfInfo
             #print(matchInfo.group(1))
             #print(" found key " + key + " and value " + str(value))         
         elif(re.match(tt_file_match, key)):
@@ -322,7 +393,7 @@ def processFiles(sortedDict, tiffDirectory):
 
     print("full dictionary = " + str(len(sortedDict)))
     print("T_U_R_ = " + str(len(tur_file_dict)))
-    print("T_T_F_N_ = " + str(len(ttfn_file_dict)))
+    print("T_T_F_N_ = " + str(len(ttff_file_dict)))
     print("T_T_N_C_ = " + str(len(ttnc_file_dict)))
     print("T_T_ = " + str(len(tt_file_dict)))
     print("T_R_C_ = " + str(len(trc_file_dict)))
@@ -338,12 +409,12 @@ def processFiles(sortedDict, tiffDirectory):
     print("T_O_ = " + str(len(to_file_dict)))
 
     total1 =  len(tur_file_dict) + len(tt_file_dict) + len(trc_file_dict) + len(tcw_file_dict) + len(tcsm_file_dict) + len(tctr_file_dict) + len(tct_file_dict) 
-    total2 = len(ct_file_dict) + len(tc_file_dict) + len(cw_file_dict) + len(tr_file_dict) + len(ts_file_dict) + len(to_file_dict) + len(ttnc_file_dict) + len(ttfn_file_dict)
+    total2 = len(ct_file_dict) + len(tc_file_dict) + len(cw_file_dict) + len(tr_file_dict) + len(ts_file_dict) + len(to_file_dict) + len(ttnc_file_dict) + len(ttff_file_dict)
 
     print("sum = " + str(total1 + total2))
-
+    printDict(trc_file_dict)
     createCsv(tur_file_dict, "tur.csv", tiffDirectory)
-    createCsv(ttfn_file_dict, "ttfn.csv", tiffDirectory)
+    createCsv(ttff_file_dict, "ttff.csv", tiffDirectory)
     createCsv(ttnc_file_dict, "ttnc.csv", tiffDirectory)
     createCsv(tt_file_dict, "tt.csv", tiffDirectory)
     createCsv(trc_file_dict, "trc.csv", tiffDirectory)
@@ -377,7 +448,7 @@ def main():
     print("Print directory found " + tiff_directory)
     sortedDict =  getPdfs(process_directory)
     # printDict(tur_file_dict)
-    # printDict(ttfn_file_dict)
+    # printDict(ttff_file_dict)
     # printDict(ttnc_file_dict)
     # printDict(tt_file_dict)
     # printDict(trc_file_dict)
