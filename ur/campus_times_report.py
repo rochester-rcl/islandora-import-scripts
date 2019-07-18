@@ -95,6 +95,7 @@ class PdfFileInfo:
     """Holds pdf file information"""
 
     def __init__(self):
+        self.hasTiffs = True
         self.publication = ''
         self.value = ''
         self.month = ''
@@ -207,26 +208,30 @@ def createCsv(dict, csv_file, tiffDirectory):
     for key, info in dict.items():
         #print(" found key " + key + " and value " + value)
         numPages = getPdfPages(info.value)
-        tiffCount = numTiffs(tiffDirectory, key)
-        #number of pages should match number of TIFF files
-        countMatch = (numPages == tiffCount)
-        if(numPages ==  tiffCount):
-            print("num pages "  + str(numPages) + " equals " + str(tiffCount))
-        else:
-            print("num pages "  + str(numPages) + " NOT equals " + str(tiffCount))
+        tiffCount = 0
 
-        row = [None] * 7
+        if(info.hasTiffs):
+            tiffCount = numTiffs(tiffDirectory, key)
+            #number of pages should match number of TIFF files
+            countMatch = (numPages == tiffCount)
+            if(numPages ==  tiffCount):
+                print("num pages "  + str(numPages) + " equals " + str(tiffCount))
+            else:
+                print("num pages "  + str(numPages) + " NOT equals " + str(tiffCount))
+
+        row = [None] * 8
         row[0] = key
         row[1] = info.getTitle()
         row[2] = numPages
-        row[3] = tiffCount
-        row[4] = countMatch
-        row[5] = info.getIsoDate()
-        row[6] = info.value
+        row[3] = info.hasTiffs
+        row[4] = tiffCount
+        row[5] = countMatch
+        row[6] = info.getIsoDate()
+        row[7] = info.value
         rows.append(row)
     with open(csv_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Name", "Title","Pages", "TIFFS", "Count Match", "Date", "Path"])
+        writer.writerow(["Name", "Title","Pages", "has tiffs", "TIFFS", "Count Match", "Date", "Path"])
         writer.writerows(rows)
 
 # ########################################
@@ -241,7 +246,7 @@ def numTiffs(tiffDirectory, key):
     print(numTiffs)
     return numTiffs
 
-def getPdfs(processDirectory):
+def getPdfs(processDirectory, hasTiffs):
     sortedDict = getFileList(processDirectory, 'pdf')
    
     for key, value in sortedDict.items():
@@ -249,6 +254,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(tur_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = tur_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             tur_file_dict[key] = pdfInfo
@@ -258,6 +264,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(tcw_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = tcw_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             tcw_file_dict[key] = pdfInfo
@@ -267,6 +274,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(trc_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = trc_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             trc_file_dict[key] = pdfInfo
@@ -276,6 +284,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(tcsm_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = tcsm_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             tcsm_file_dict[key] = pdfInfo
@@ -285,6 +294,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(tctr_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = tctr_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             tctr_file_dict[key] = pdfInfo
@@ -294,6 +304,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(tct_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = tct_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             tct_file_dict[key] = pdfInfo
@@ -303,6 +314,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(ttnc_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = ttnc_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             ttnc_file_dict[key] = pdfInfo
@@ -312,6 +324,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(ttff_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = ttff_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             ttff_file_dict[key] = pdfInfo
@@ -321,6 +334,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(tt_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = tt_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             tt_file_dict[key] = pdfInfo
@@ -330,16 +344,18 @@ def getPdfs(processDirectory):
             matchInfo = re.match(ct_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = ct_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             ct_file_dict[key] = pdfInfo
             #print(matchInfo.group(1))
             #print(" found key " + key + " and value " + str(value))    
-        #NOTE this one must be below the more exxplict TCW, TCSM, TCT match
+        # NOTE this one must be below the more exxplict TCW, TCSM, TCT match
         elif(re.match(tc_file_match, key)):
             matchInfo = re.match(tc_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = tc_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             tc_file_dict[key] = pdfInfo
@@ -349,6 +365,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(cw_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = cw_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             cw_file_dict[key] = pdfInfo
@@ -358,6 +375,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(tr_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = tr_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             tr_file_dict[key] = pdfInfo
@@ -367,6 +385,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(ts_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = ts_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             ts_file_dict[key] = pdfInfo
@@ -376,6 +395,7 @@ def getPdfs(processDirectory):
             matchInfo = re.match(to_file_match, key)
             pdfInfo = PdfFileInfo()
             pdfInfo.publication = to_pub_name
+            pdfInfo.hasTiffs = hasTiffs
             pdfInfo.value = value
             pdfInfo.date = matchInfo.group(1)
             to_file_dict[key] = pdfInfo
@@ -389,9 +409,8 @@ def getPdfs(processDirectory):
 # Process all the files checking for 
 # key matches
 # ########################################
-def processFiles(sortedDict, tiffDirectory):
+def processFiles(tiffDirectory):
 
-    print("full dictionary = " + str(len(sortedDict)))
     print("T_U_R_ = " + str(len(tur_file_dict)))
     print("T_T_F_N_ = " + str(len(ttff_file_dict)))
     print("T_T_N_C_ = " + str(len(ttnc_file_dict)))
@@ -433,7 +452,7 @@ def processFiles(sortedDict, tiffDirectory):
 # Main Program
 # ########################################
 def main():
-    process_directory = input("Please enter directoy to process: ")
+    process_directory = input("Please enter PDF directory with tiffs to process: ")
     if not os.path.isdir(process_directory):
         print("Directory " + process_directory + " does not exist or is not a directory")
         sys.exit()
@@ -446,7 +465,16 @@ def main():
         sys.exit()
     
     print("Print directory found " + tiff_directory)
-    sortedDict =  getPdfs(process_directory)
+    
+    no_tiff_process_directory = input("Please enter directory with PDF only files (NO TIFF files) to process: ")
+    if not os.path.isdir(no_tiff_process_directory):
+        print("Directory " + no_tiff_process_directory + " does not exist or is not a directory")
+        sys.exit()
+    
+    
+    
+    getPdfs(process_directory, True)
+    getPdfs(no_tiff_process_directory, False)
     # printDict(tur_file_dict)
     # printDict(ttff_file_dict)
     # printDict(ttnc_file_dict)
@@ -462,7 +490,8 @@ def main():
     # printDict(tr_file_dict)
     # printDict(ts_file_dict)
     # printDict(to_file_dict)
-    processFiles(sortedDict, tiff_directory)
+    
+    processFiles(tiff_directory)
 
 if __name__ == '__main__':
     main()
