@@ -46,6 +46,7 @@ def print_csv_info(a_file):
 # Main Program
 # ########################################
 
+
 def main():
     # get the csv file input
     a_file = input("Please enter csv file name: ")
@@ -55,6 +56,7 @@ def main():
     else:
         print("found file ")
         process_csv(a_file)
+
 
 if __name__ == '__main__':
     main()
