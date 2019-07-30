@@ -6,9 +6,9 @@ def convert_pdf_page(sourcePdf,  baseWidth, destination, pageNum = 0, quality = 
     
 
     # create format of  "DRIVE:\\dir1\\dir2\\file.pdf[pageNumber]"
-    with Image(filename = sourcePdf + "[" + str(pageNum) + "]") as img:
+    with Image(filename=sourcePdf + "[" + str(pageNum) + "]") as img:
        
-        command = ["convert", 
+        command = ["convert",
         sourcePdf + "[" + str(pageNum) + "]", 
         "-quality", 
         str(quality), 
@@ -26,6 +26,7 @@ def convert_pdf_page(sourcePdf,  baseWidth, destination, pageNum = 0, quality = 
        ]
 
         #run the command
+        print("command = " + ' '.join(command))
         subprocess.run(command, shell=True)
 
 def main():
