@@ -177,7 +177,7 @@ def build_package(object_counter, row, template, output_dir, tiff_dir):
     print(" copying " + pdf_file + " to " + pdf_dest_file)
     shutil.copy(pdf_file, pdf_dest_file)
     tn_dest_file = os.path.join(object_dir, "TN.jpg")
-    pdfpagetojpg.convert_pdf_page(pdf_dest_file, 400, tn_dest_file)
+    pdfpagetojpg.convert_pdf_page2(pdf_dest_file, 400, tn_dest_file)
 
 
 def process_csv(csv_file, template, output_dir, tiff_dir):
@@ -223,7 +223,7 @@ def main():
 
     # get the csv file input
     # csv_file = input("Please enter csv file name: ")
-    csv_file = '/Users/ndsarr/rcl/campus-times-data/csv-reports/tcw_back.csv'
+    csv_file = '/Users/nsarr/git-projects/campus-times-reports/csv_reports/cw_test.csv'
 
     if not os.path.isfile(csv_file):
         print("Could not find file " + csv_file)
@@ -232,7 +232,7 @@ def main():
         print("csv found file ")
 
     # template_file = input("Please enter template file name: ")
-    template_file = '/Users/ndsarr/rcl/campus-times-data/mods/CloisterWindow_MODS_template.xml'
+    template_file = '/Users/nsarr/git-projects/campus-times-reports/mods_templates/CloisterWindow_MODS_template.xml'
     if not os.path.isfile(template_file):
         print("Could not find file " + template_file)
         sys.exit()
@@ -255,7 +255,7 @@ def main():
     else:
         # output directory for processing
         # output_directory = input("Please enter output directory: ")
-        output_directory = '/Users/ndsarr/rcl/campus-times-data/output'
+        output_directory = '/Users/nsarr/git-projects/campus-times-reports/output'
         if not os.path.isdir(output_directory):
             print("Directory " + output_directory + " does not exist or is not a directory")
             sys.exit()
