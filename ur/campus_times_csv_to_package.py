@@ -22,6 +22,8 @@ def build_page_xml(row, template, output_dir):
         if '}' in el.tag:
             el.tag = el.tag.split('}', 1)[1]  # strip all namespaces
     root = tree.root
+    root.attrib['xmlns:xlink'] = "http://www.w3.org/1999/xlink"
+    root.attrib['xmlns'] = "http://www.loc.gov/mods/v3"
 
     title_info = root.find('titleInfo')
     title = title_info.find('title')
@@ -39,7 +41,7 @@ def build_page_xml(row, template, output_dir):
     # number of pages is one for the page template
     physical_description = root.find("physicalDescription")
     extent = physical_description.find('extent')
-    extent.text = "1"
+    extent.text = "1 page"
 
     note = root.find("note")
     note_text = note.text
@@ -47,7 +49,7 @@ def build_page_xml(row, template, output_dir):
 
     new_tree = elementTree.ElementTree(root)
     mods_file = os.path.join(output_dir, "MODS.xml")
-    new_tree.write(mods_file)
+    new_tree.write(mods_file,encoding='utf-8', xml_declaration=True)
 
 
 # ##########################################
@@ -113,6 +115,8 @@ def build_package_xml(row, template, output_dir):
         if '}' in el.tag:
             el.tag = el.tag.split('}', 1)[1]  # strip all namespaces
     root = tree.root
+    root.attrib['xmlns:xlink'] = "http://www.w3.org/1999/xlink"
+    root.attrib['xmlns'] = "http://www.loc.gov/mods/v3"
 
     title_info = root.find('titleInfo')
     title = title_info.find('title')
@@ -129,7 +133,7 @@ def build_package_xml(row, template, output_dir):
 
     physical_description = root.find("physicalDescription")
     extent = physical_description.find('extent')
-    extent.text = str(row[2])
+    extent.text = str(row[2]) + " pages" 
 
     note = root.find("note")
     note_text = note.text
@@ -137,7 +141,7 @@ def build_package_xml(row, template, output_dir):
 
     new_tree = elementTree.ElementTree(root)
     mods_file = os.path.join(output_dir, "MODS.xml")
-    new_tree.write(mods_file)
+    new_tree.write(mods_file, encoding='utf-8', xml_declaration=True)
 
 
 def get_tiff_files(key, tiff_dir):
@@ -164,12 +168,13 @@ def build_package(object_counter, row, template, output_dir, tiff_dir):
     print("processing " + folder_path)
     print("key " + str(row[0]))
 
-    tiff_files = get_tiff_files(str(row[0]), tiff_dir)
-    counter = 1
-    for tiff_file in tiff_files:
-        print(tiff_file)
-        create_page_package(counter, object_dir, tiff_file, template, row)
-        counter += 1
+    if str(row[3] == 'TRUE'):
+        tiff_files = get_tiff_files(str(row[0]), tiff_dir)
+        counter = 1
+        for tiff_file in tiff_files:
+            print(tiff_file)
+            create_page_package(counter, object_dir, tiff_file, template, row)
+            counter += 1
 
     # copy pdf file
     pdf_file = str(row[7])
@@ -217,30 +222,26 @@ def print_csv_info(a_file, num_columns):
 
 
 def main():
-
     num_excel_columns = 8
     print("****** main ****** ")
 
     # get the csv file input
-    # csv_file = input("Please enter csv file name: ")
-    csv_file = '/Users/nsarr/git-projects/campus-times-reports/csv_reports/cw_test.csv'
-
+    csv_file = input("Please enter csv file name: ")
     if not os.path.isfile(csv_file):
         print("Could not find file " + csv_file)
         sys.exit()
     else:
         print("csv found file ")
 
-    # template_file = input("Please enter template file name: ")
-    template_file = '/Users/nsarr/git-projects/campus-times-reports/mods_templates/CloisterWindow_MODS_template.xml'
+    template_file = input("Please enter template file name: ")
     if not os.path.isfile(template_file):
         print("Could not find file " + template_file)
         sys.exit()
     else:
         print("template found file ")
 
-    # tiff_directory = input("Please enter tiff directory: ")
-    tiff_directory = '/Volumes/msm-8tb-drive-cts/TIFF'
+    tiff_directory = input("Please enter tiff directory: ")
+    # tiff_directory = '/Volumes/msm-8tb-drive-cts/TIFF'
     if not os.path.isdir(tiff_directory):
         print("Directory " + tiff_directory + " does not exist or is not a directory")
         sys.exit()
@@ -254,8 +255,7 @@ def main():
         print_csv_info(csv_file, num_excel_columns)
     else:
         # output directory for processing
-        # output_directory = input("Please enter output directory: ")
-        output_directory = '/Users/nsarr/git-projects/campus-times-reports/output'
+        output_directory = input("Please enter output directory: ")
         if not os.path.isdir(output_directory):
             print("Directory " + output_directory + " does not exist or is not a directory")
             sys.exit()
