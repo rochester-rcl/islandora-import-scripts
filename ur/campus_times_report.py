@@ -68,6 +68,10 @@ to_file_match = "T_O_(.*)"
 to_file_dict = {}
 to_pub_name = "Oister"
 
+cc_file_match = "C_C_(.*)"
+cc_file_dict = {}
+cc_pub_name = "Campus Crier"
+
 
 #date matching patterns
 basic_date_match = "(\d+)_(\d+)_(\d+)"
@@ -401,6 +405,16 @@ def getPdfs(processDirectory, hasTiffs):
             to_file_dict[key] = pdfInfo
             #print(matchInfo.group(1))
             #print(" found key " + key + " and value " + str(value))
+        elif(re.match(cc_file_match, key)):
+            matchInfo = re.match(cc_file_match, key)
+            pdfInfo = PdfFileInfo()
+            pdfInfo.publication = cc_pub_name
+            pdfInfo.hasTiffs = hasTiffs
+            pdfInfo.value = value
+            pdfInfo.date = matchInfo.group(1)
+            to_file_dict[key] = pdfInfo
+            #print(matchInfo.group(1))
+            #print(" found key " + key + " and value " + str(value))
         else:
             print("No match found for key" + key)
     return sortedDict
@@ -426,9 +440,10 @@ def processFiles(tiffDirectory):
     print("T_R_ = " + str(len(tr_file_dict)))
     print("T_S_ = " + str(len(ts_file_dict)))
     print("T_O_ = " + str(len(to_file_dict)))
+    print("C_C_ = " + str(len(cc_file_dict)))
 
     total1 =  len(tur_file_dict) + len(tt_file_dict) + len(trc_file_dict) + len(tcw_file_dict) + len(tcsm_file_dict) + len(tctr_file_dict) + len(tct_file_dict) 
-    total2 = len(ct_file_dict) + len(tc_file_dict) + len(cw_file_dict) + len(tr_file_dict) + len(ts_file_dict) + len(to_file_dict) + len(ttnc_file_dict) + len(ttff_file_dict)
+    total2 = len(ct_file_dict) + len(tc_file_dict) + len(cw_file_dict) + len(tr_file_dict) + len(ts_file_dict) + len(to_file_dict) + len(ttnc_file_dict) + len(ttff_file_dict) + len(cc_file_dict)
 
     print("sum = " + str(total1 + total2))
     printDict(trc_file_dict)
@@ -447,6 +462,7 @@ def processFiles(tiffDirectory):
     createCsv(tr_file_dict, "tr.csv", tiffDirectory)
     createCsv(ts_file_dict, "ts.csv", tiffDirectory)
     createCsv(to_file_dict, "to.csv", tiffDirectory)
+    createCsv(cc_file_dict, "cc.csv", tiffDirectory)
 
 # ########################################
 # Main Program
@@ -466,15 +482,15 @@ def main():
     
     print("Print directory found " + tiff_directory)
     
-    no_tiff_process_directory = input("Please enter directory with PDF only files (NO TIFF files) to process: ")
-    if not os.path.isdir(no_tiff_process_directory):
-        print("Directory " + no_tiff_process_directory + " does not exist or is not a directory")
-        sys.exit()
+#    no_tiff_process_directory = input("Please enter directory with PDF only files (NO TIFF files) to process: ")
+#    if not os.path.isdir(no_tiff_process_directory):
+#        print("Directory " + no_tiff_process_directory + " does not exist or is not a directory")
+#        sys.exit()
     
     
     
     getPdfs(process_directory, True)
-    getPdfs(no_tiff_process_directory, False)
+#    getPdfs(no_tiff_process_directory, False)
     # printDict(tur_file_dict)
     # printDict(ttff_file_dict)
     # printDict(ttnc_file_dict)
